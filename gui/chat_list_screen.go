@@ -16,6 +16,7 @@ func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
 	searchButton := widget.NewButton("Find user", func() {
 		// Логика поиска
 	})
+
 	title := widget.NewLabel("Local Mail")
 	title.TextStyle.Bold = true
 	title.Alignment = fyne.TextAlignCenter

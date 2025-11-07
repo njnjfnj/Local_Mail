@@ -1,6 +1,9 @@
 package gui
 
-import "fyne.io/fyne/v2"
+import (
+	"fyne.io/fyne/v2"
+	udp_broadcast "github.com/njnjfnj/Local_Mail/internal/local_net/udp_broadcast"
+)
 
 // AppGUI хранит состояние нашего UI
 type AppGUI struct {
@@ -14,6 +17,10 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 		window: w,
 	}
 	a.chatListScreen = a.createChatListScreen()
+
+	udp_broadcast.Start_broadcast()
+	udp_broadcast.Start_udp_broadcast_reciver()
+
 	return a
 }
 
