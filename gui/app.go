@@ -1,0 +1,36 @@
+package gui
+
+import "fyne.io/fyne/v2"
+
+// AppGUI хранит состояние нашего UI
+type AppGUI struct {
+	window         fyne.Window
+	chatListScreen fyne.CanvasObject
+}
+
+// NewAppGUI создает новый экземпляр нашего UI
+func NewAppGUI(w fyne.Window) *AppGUI {
+	a := &AppGUI{
+		window: w,
+	}
+	a.chatListScreen = a.createChatListScreen()
+	return a
+}
+
+// CreateMainLayout возвращает стартовый экран приложения
+func (a *AppGUI) CreateMainLayout() fyne.CanvasObject {
+	return a.chatListScreen
+}
+
+// ИЗМЕНЕНИЕ: Эта функция теперь управляет прокруткой
+func (a *AppGUI) navigateToChatView(contactName string) {
+	messageList, chatScreen := a.createChatViewScreen(contactName)
+
+	a.window.SetContent(chatScreen)
+
+	messageList.ScrollToBottom()
+}
+
+func (a *AppGUI) navigateBackToList() {
+	a.window.SetContent(a.chatListScreen)
+}
