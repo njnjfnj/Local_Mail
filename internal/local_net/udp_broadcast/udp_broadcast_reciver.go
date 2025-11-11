@@ -9,11 +9,18 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
+
+	t "github.com/njnjfnj/Local_Mail/internal/local_net/tcp_communication"
 )
 
 const listenPort = "1337"
 
-func udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.List, chatListMu *sync.RWMutex) {
+type SettingsWidgets struct {
+	Username *widget.Entry
+	Port     *widget.Entry
+}
+
+func udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.List, chatListMu *sync.RWMutex, s *SettingsWidgets) {
 	for {
 		addr, err := net.ResolveUDPAddr("udp4", ":"+listenPort)
 		if err != nil {
@@ -45,20 +52,50 @@ func udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.Lis
 
 			switch messageType {
 			case int('0'):
-				var data connect_data
+				var data Connect_data
 				json.Unmarshal([]byte(message), &data)
+
+				if data.FullAddress == fmt.Sprint(GetOutboundIP()+":"+s.Port.Text) {
+					continue
+				}
+
 				chatListMu.Lock()
 				(*chatList)[data.FullAddress] = data.Username
 				chatListMu.Unlock()
 
+				message := Connect_data{
+					Package_type: 0,
+					Username:     s.Username.Text,
+					FullAddress:  fmt.Sprintf("%s:%s", GetOutboundIP(), s.Port.Text),
+				}
+
+				jsonData, err := json.Marshal(message)
+				if err != nil {
+					continue
+				}
+
+				t.SendConnectData(data.FullAddress, jsonData)
+
 				fyne.Do(func() {
 					chatListView.Refresh()
 				})
+
 			}
 		}
 	}
 }
 
-func Start_udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.List, chatListMu *sync.RWMutex) {
-	go udp_broadcast_reciver(chatList, chatListView, chatListMu)
+func Start_udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.List, chatListMu *sync.RWMutex, s *SettingsWidgets) {
+	go udp_broadcast_reciver(chatList, chatListView, chatListMu, s)
+}
+
+func GetOutboundIP() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return fmt.Sprintf("Error occurred: %s", err.Error())
+	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP.String()
 }

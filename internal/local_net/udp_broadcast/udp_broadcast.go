@@ -48,13 +48,13 @@ func Start_broadcast_test() {
 	go upd_broadcast_test()
 }
 
-type connect_data struct {
+type Connect_data struct {
 	Package_type int
 	Username     string
 	FullAddress  string
 }
 
-func Send_connect_data_via_broadcast(username, broadcastLocalAddress, broadcastPort string) error {
+func Send_connect_data_via_broadcast(username, broadcastLocalAddress, broadcastLocalPort string) error {
 	if username == "" {
 		return fmt.Errorf("username missing")
 	}
@@ -74,10 +74,10 @@ func Send_connect_data_via_broadcast(username, broadcastLocalAddress, broadcastP
 
 	defer conn.Close()
 
-	message := connect_data{
+	message := Connect_data{
 		Package_type: 0,
 		Username:     username,
-		FullAddress:  fmt.Sprintf("%s:%s", broadcastLocalAddress, broadcastPort),
+		FullAddress:  fmt.Sprintf("%s:%s", broadcastLocalAddress, broadcastLocalPort),
 	}
 
 	jsonData, err := json.Marshal(message)

@@ -8,18 +8,20 @@ import (
 	"fyne.io/fyne/v2/container"
 
 	"fyne.io/fyne/v2/widget"
+
+	udp_broadcast "github.com/njnjfnj/Local_Mail/internal/local_net/udp_broadcast"
 )
 
-type settingsWidgets struct {
-	Username *widget.Entry
-	Port     *widget.Entry
-}
+// type settingsWidgets struct {
+// 	Username *widget.Entry
+// 	Port     *widget.Entry
+// }
 
-func (a *AppGUI) createsettingsWidgets() *settingsWidgets {
+func (a *AppGUI) createsettingsWidgets() *udp_broadcast.SettingsWidgets {
 	portEntry := widget.NewEntry()
 	portEntry.SetText("1338")
 
-	return &settingsWidgets{
+	return &udp_broadcast.SettingsWidgets{
 		Username: widget.NewEntry(),
 		Port:     portEntry,
 	}

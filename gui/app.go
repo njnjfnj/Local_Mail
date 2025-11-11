@@ -15,7 +15,7 @@ type AppGUI struct {
 	chatListView          *widget.List
 	menuScreen            fyne.CanvasObject
 	settingsScreen        fyne.CanvasObject
-	settingsScreenWidgets *settingsWidgets
+	settingsScreenWidgets *udp_broadcast.SettingsWidgets
 	chatList              map[string]string
 	chatListMu            sync.RWMutex
 }
@@ -31,7 +31,7 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 	a.settingsScreenWidgets = a.createsettingsWidgets()
 	a.settingsScreen = a.createSettingsScreen()
 
-	udp_broadcast.Start_udp_broadcast_reciver(&a.chatList, a.chatListView, &a.chatListMu)
+	udp_broadcast.Start_udp_broadcast_reciver(&a.chatList, a.chatListView, &a.chatListMu, a.settingsScreenWidgets)
 
 	return a
 }
