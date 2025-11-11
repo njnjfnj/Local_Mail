@@ -7,7 +7,7 @@ import (
 	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
 )
 
-func (a *AppGUI) createChatViewScreen(contactName string) (*widget.List, fyne.CanvasObject) {
+func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.List, fyne.CanvasObject) {
 	// 1. Верхняя панель (App Bar)
 	backButton := widget.NewButton("Back", func() {
 		a.navigateBackToList() // Навигация назад
