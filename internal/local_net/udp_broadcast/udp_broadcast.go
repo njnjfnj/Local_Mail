@@ -54,7 +54,7 @@ type connect_data struct {
 	FullAddress  string
 }
 
-func Send_connect_data_via_broadcast(username, broadcastAddress, broadcastPort string) error {
+func Send_connect_data_via_broadcast(username, broadcastLocalAddress, broadcastPort string) error {
 	if username == "" {
 		return fmt.Errorf("username missing")
 	}
@@ -77,7 +77,7 @@ func Send_connect_data_via_broadcast(username, broadcastAddress, broadcastPort s
 	message := connect_data{
 		Package_type: 0,
 		Username:     username,
-		FullAddress:  fmt.Sprintf("%s:%s", broadcastAddress, broadcastPort),
+		FullAddress:  fmt.Sprintf("%s:%s", broadcastLocalAddress, broadcastPort),
 	}
 
 	jsonData, err := json.Marshal(message)
