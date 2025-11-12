@@ -50,12 +50,12 @@ func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
 	)
 
 	// 2. Список чатов (используем widget.List для производительности)
-	a.chatList = map[string]string{
-		"192.168.0.2": "Vova",
-		"192.168.0.3": "Sasha",
-		"192.168.0.4": "Nastia",
-		"192.168.0.5": "Lesha",
-	}
+	// a.chatList = map[string]string{
+	// 	"192.168.0.2": "Vova",
+	// 	"192.168.0.3": "Sasha",
+	// 	"192.168.0.4": "Nastia",
+	// 	"192.168.0.5": "Lesha",
+	// }
 
 	// сделать так, чтоб при обновлении ползователей с сети обновлялся chatList
 	// и потом обновлялся chatList
