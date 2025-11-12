@@ -5,7 +5,9 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
+	tcp_communication "github.com/njnjfnj/Local_Mail/internal/local_net/tcp_communication"
 	udp_broadcast "github.com/njnjfnj/Local_Mail/internal/local_net/udp_broadcast"
+	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
 // AppGUI хранит состояние нашего UI
@@ -15,9 +17,10 @@ type AppGUI struct {
 	chatListView          *widget.List
 	menuScreen            fyne.CanvasObject
 	settingsScreen        fyne.CanvasObject
-	settingsScreenWidgets *udp_broadcast.SettingsWidgets
+	settingsScreenWidgets *SettingsWidgets
 	chatList              map[string]string
 	chatListMu            sync.RWMutex
+	updateChatListChan    chan string
 }
 
 // NewAppGUI создает новый экземпляр нашего UI
@@ -31,7 +34,12 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 	a.settingsScreenWidgets = a.createsettingsWidgets()
 	a.settingsScreen = a.createSettingsScreen()
 
-	udp_broadcast.Start_udp_broadcast_reciver(&a.chatList, a.chatListView, &a.chatListMu, a.settingsScreenWidgets)
+	a.updateChatListChan = make(chan string)
+
+	udp_broadcast.Start_udp_broadcast_reciver(a.settingsScreenWidgets.Username, a.settingsScreenWidgets.Port, a.updateChatListChan)
+	tcp_communication.StartTCPServer(local_net.GetOutboundIP(), a.settingsScreenWidgets.Port, a.updateChatListChan)
+
+	a.startUpdateChatList(a.updateChatListChan, &a.chatListMu)
 
 	return a
 }

@@ -1,27 +1,24 @@
 package gui
 
 import (
-	"fmt"
-	"net"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 
 	"fyne.io/fyne/v2/widget"
 
-	udp_broadcast "github.com/njnjfnj/Local_Mail/internal/local_net/udp_broadcast"
+	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
-// type settingsWidgets struct {
-// 	Username *widget.Entry
-// 	Port     *widget.Entry
-// }
+type SettingsWidgets struct {
+	Username *widget.Entry
+	Port     *widget.Entry
+}
 
-func (a *AppGUI) createsettingsWidgets() *udp_broadcast.SettingsWidgets {
+func (a *AppGUI) createsettingsWidgets() *SettingsWidgets {
 	portEntry := widget.NewEntry()
 	portEntry.SetText("1338")
 
-	return &udp_broadcast.SettingsWidgets{
+	return &SettingsWidgets{
 		Username: widget.NewEntry(),
 		Port:     portEntry,
 	}
@@ -50,18 +47,7 @@ func (a *AppGUI) createSettingsScreen() fyne.CanvasObject {
 	formPort := widget.NewFormItem("Port: ", a.settingsScreenWidgets.Port)
 	formContainer := widget.NewForm(formUsername, formPort)
 
-	vbox := container.NewVBox(widget.NewLabel(""), formContainer, widget.NewLabel("Your local IP: "+GetOutboundIP()))
+	vbox := container.NewVBox(widget.NewLabel(""), formContainer, widget.NewLabel("Your local IP: "+local_net.GetOutboundIP()))
 
 	return container.NewBorder(topAppBar, saveButton, nil, nil, vbox)
-}
-
-func GetOutboundIP() string {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		return fmt.Sprintf("Error occurred: %s", err.Error())
-	}
-	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP.String()
 }

@@ -1,4 +1,4 @@
-package tcpcommunication
+package tcp_communication
 
 import (
 	"fmt"

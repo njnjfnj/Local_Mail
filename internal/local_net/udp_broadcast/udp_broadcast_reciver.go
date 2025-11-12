@@ -4,23 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"sync"
 	"time"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 
 	t "github.com/njnjfnj/Local_Mail/internal/local_net/tcp_communication"
+	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
 const listenPort = "1337"
 
-type SettingsWidgets struct {
-	Username *widget.Entry
-	Port     *widget.Entry
-}
-
-func udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.List, chatListMu *sync.RWMutex, s *SettingsWidgets) {
+func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, ch chan string) {
 	for {
 		addr, err := net.ResolveUDPAddr("udp4", ":"+listenPort)
 		if err != nil {
@@ -55,18 +49,19 @@ func udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.Lis
 				var data Connect_data
 				json.Unmarshal([]byte(message), &data)
 
-				if data.FullAddress == fmt.Sprint(GetOutboundIP()+":"+s.Port.Text) {
-					continue
-				}
+				ch <- fmt.Sprintf("%s~%s", data.Username, data.FullAddress)
+				// if _, v := (*chatList)[data.FullAddress]; data.FullAddress == fmt.Sprint(local_net.GetOutboundIP()+":"+Port.Text) || !v {
+				// 	continue
+				// }
 
-				chatListMu.Lock()
-				(*chatList)[data.FullAddress] = data.Username
-				chatListMu.Unlock()
+				// chatListMu.Lock()
+				// (*chatList)[data.FullAddress] = data.Username
+				// chatListMu.Unlock()
 
 				message := Connect_data{
 					Package_type: 0,
-					Username:     s.Username.Text,
-					FullAddress:  fmt.Sprintf("%s:%s", GetOutboundIP(), s.Port.Text),
+					Username:     Username.Text,
+					FullAddress:  fmt.Sprintf("%s:%s", local_net.GetOutboundIP(), Port.Text),
 				}
 
 				jsonData, err := json.Marshal(message)
@@ -76,26 +71,15 @@ func udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.Lis
 
 				t.SendConnectData(data.FullAddress, jsonData)
 
-				fyne.Do(func() {
-					chatListView.Refresh()
-				})
+				// fyne.Do(func() {
+				// 	chatListView.Refresh()
+				// })
 
 			}
 		}
 	}
 }
 
-func Start_udp_broadcast_reciver(chatList *map[string]string, chatListView *widget.List, chatListMu *sync.RWMutex, s *SettingsWidgets) {
-	go udp_broadcast_reciver(chatList, chatListView, chatListMu, s)
-}
-
-func GetOutboundIP() string {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		return fmt.Sprintf("Error occurred: %s", err.Error())
-	}
-	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP.String()
+func Start_udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, ch chan string) {
+	go udp_broadcast_reciver(Username, Port, ch)
 }

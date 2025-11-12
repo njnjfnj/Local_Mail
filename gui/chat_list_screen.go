@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	udp_broadcas "github.com/njnjfnj/Local_Mail/internal/local_net/udp_broadcast"
+	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
 func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
@@ -26,7 +27,7 @@ func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
 		clear(a.chatList)
 		a.chatListView.Refresh()
 		if err := udp_broadcas.Send_connect_data_via_broadcast(a.settingsScreenWidgets.Username.Text,
-			GetOutboundIP(),
+			local_net.GetOutboundIP(),
 			a.settingsScreenWidgets.Port.Text); err != nil {
 			if a.settingsScreenWidgets.Username.Text == "" || a.settingsScreenWidgets.Port.Text == "" {
 				vbox1.Objects[0].(*widget.Label).SetText("CAN NOT REFRESH!!\nGo to menu -> settings -> fill Username & Port")
