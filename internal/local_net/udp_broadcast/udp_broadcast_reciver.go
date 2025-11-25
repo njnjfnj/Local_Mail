@@ -53,12 +53,7 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *
 					FullAddress:  fmt.Sprintf("%s:%s", local_net.GetOutboundIP(), Port.Text),
 				}
 
-				jsonData, err := json.Marshal(message)
-				if err != nil {
-					continue
-				}
-
-				t.SendConnectData(data.FullAddress, jsonData)
+				t.SendConnectData(data.FullAddress, message)
 			}
 		}
 	}
