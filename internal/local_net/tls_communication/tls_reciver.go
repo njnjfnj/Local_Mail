@@ -74,17 +74,14 @@ func handleConnection(conn net.Conn, ch chan string) {
 
 	fmt.Printf("Подключился пользователь с ID: %s\n", fingerprint)
 
-	buffer := make([]byte, 1024)
-	n, err := conn.Read(buffer)
-	if err != nil {
-		return
-	}
-
-	message := string(buffer[:n])
-	fmt.Printf("Принято сообщение от %s: %s\n", conn.RemoteAddr().String(), message)
+	// message := string(buffer[:n])
+	// fmt.Printf("Принято сообщение от %s: %s\n", conn.RemoteAddr().String(), message)
 
 	var data mail_data
-	json.Unmarshal([]byte(message), &data)
+	if err := json.NewDecoder(conn).Decode(&data); err != nil {
+		log.Println("can not decode json")
+		return
+	}
 
 	switch data.Package_type {
 	case 0:

@@ -2,10 +2,11 @@ package tls_communication
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 )
 
-func SendConnectData(toAddr string, data []byte) error {
+func SendConnectData(toAddr string, data interface{}) error {
 	cert, err := GetOrGenerateCertificate("cert.pem", "key.pem")
 	if err != nil {
 		return fmt.Errorf("certificate error: %w", err)
@@ -13,7 +14,7 @@ func SendConnectData(toAddr string, data []byte) error {
 
 	conf := &tls.Config{
 		InsecureSkipVerify: true,
-		Certificates:       []tls.Certificate{cert},
+		Certificates:       []tls.Certificate{cert}, // Не забываем сертификат!
 	}
 
 	conn, err := tls.Dial("tcp", toAddr, conf)
@@ -22,7 +23,10 @@ func SendConnectData(toAddr string, data []byte) error {
 	}
 	defer conn.Close()
 
-	fmt.Fprintf(conn, string(data)+"\n")
+	err = json.NewEncoder(conn).Encode(data)
+	if err != nil {
+		return fmt.Errorf("encode error: %w", err)
+	}
 
 	return nil
 }

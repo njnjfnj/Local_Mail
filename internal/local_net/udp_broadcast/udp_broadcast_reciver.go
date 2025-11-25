@@ -40,13 +40,11 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *
 			message := string(buffer[:n])
 			fmt.Printf("Получено '%s' от %s\n", message, remoteAddr)
 
-			messageType := int(message[16])
+			var data mail_data
+			json.Unmarshal([]byte(message), &data)
 
-			switch messageType {
-			case int('0'):
-				var data mail_data
-				json.Unmarshal([]byte(message), &data)
-
+			switch data.Package_type {
+			case 0:
 				ch <- fmt.Sprintf("%s~%s", data.Username, data.FullAddress)
 
 				message := mail_data{
