@@ -28,7 +28,8 @@ func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
 		a.chatListView.Refresh()
 		if err := udp_broadcas.Send_connect_data_via_broadcast(a.settingsScreenWidgets.Username.Text,
 			local_net.GetOutboundIP(),
-			a.settingsScreenWidgets.Port.Text); err != nil {
+			a.settingsScreenWidgets.Port.Text,
+			a.settingsScreenWidgets.UdpPort.Text); err != nil {
 			if a.settingsScreenWidgets.Username.Text == "" || a.settingsScreenWidgets.Port.Text == "" {
 				vbox1.Objects[0].(*widget.Label).SetText("CAN NOT REFRESH!!\nGo to menu -> settings -> fill Username & Port")
 				return

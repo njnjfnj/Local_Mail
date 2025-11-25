@@ -8,15 +8,15 @@ import (
 
 	"fyne.io/fyne/v2/widget"
 
-	t "github.com/njnjfnj/Local_Mail/internal/local_net/tcp_communication"
+	t "github.com/njnjfnj/Local_Mail/internal/local_net/tls_communication"
 	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
-const listenPort = "1337"
+// const listenPort = "1337"
 
-func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, ch chan string) {
+func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *widget.Entry, ch chan string) {
 	for {
-		addr, err := net.ResolveUDPAddr("udp4", ":"+listenPort)
+		addr, err := net.ResolveUDPAddr("udp4", ":"+UdpPort.Text)
 		if err != nil {
 			fmt.Println("resolving address error:", err)
 			time.Sleep(5 * time.Second)
@@ -24,15 +24,13 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, ch chan s
 		}
 		conn, err := net.ListenUDP("udp4", addr)
 		if err != nil {
-			//fmt.Println("listen error:", err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
-		buffer := make([]byte, 1024) // 1024 байт должно хватить для простых сообщений
+		buffer := make([]byte, 1024)
 
 		for {
-			// Читаем данные из соединения
 			n, remoteAddr, err := conn.ReadFromUDP(buffer)
 			if err != nil {
 				conn.Close()
@@ -46,19 +44,12 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, ch chan s
 
 			switch messageType {
 			case int('0'):
-				var data Connect_data
+				var data mail_data
 				json.Unmarshal([]byte(message), &data)
 
 				ch <- fmt.Sprintf("%s~%s", data.Username, data.FullAddress)
-				// if _, v := (*chatList)[data.FullAddress]; data.FullAddress == fmt.Sprint(local_net.GetOutboundIP()+":"+Port.Text) || !v {
-				// 	continue
-				// }
 
-				// chatListMu.Lock()
-				// (*chatList)[data.FullAddress] = data.Username
-				// chatListMu.Unlock()
-
-				message := Connect_data{
+				message := mail_data{
 					Package_type: 0,
 					Username:     Username.Text,
 					FullAddress:  fmt.Sprintf("%s:%s", local_net.GetOutboundIP(), Port.Text),
@@ -70,16 +61,11 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, ch chan s
 				}
 
 				t.SendConnectData(data.FullAddress, jsonData)
-
-				// fyne.Do(func() {
-				// 	chatListView.Refresh()
-				// })
-
 			}
 		}
 	}
 }
 
-func Start_udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, ch chan string) {
-	go udp_broadcast_reciver(Username, Port, ch)
+func Start_udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *widget.Entry, ch chan string) {
+	go udp_broadcast_reciver(Username, Port, UdpPort, ch)
 }

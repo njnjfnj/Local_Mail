@@ -12,15 +12,20 @@ import (
 type SettingsWidgets struct {
 	Username *widget.Entry
 	Port     *widget.Entry
+	UdpPort  *widget.Entry
 }
 
 func (a *AppGUI) createsettingsWidgets() *SettingsWidgets {
 	portEntry := widget.NewEntry()
 	portEntry.SetText("1338")
 
+	udpPortEntry := widget.NewEntry()
+	udpPortEntry.SetText("1337")
+
 	return &SettingsWidgets{
 		Username: widget.NewEntry(),
 		Port:     portEntry,
+		UdpPort:  udpPortEntry,
 	}
 }
 
@@ -45,7 +50,8 @@ func (a *AppGUI) createSettingsScreen() fyne.CanvasObject {
 	)
 	formUsername := widget.NewFormItem("Username: ", a.settingsScreenWidgets.Username)
 	formPort := widget.NewFormItem("Port: ", a.settingsScreenWidgets.Port)
-	formContainer := widget.NewForm(formUsername, formPort)
+	formUdpPort := widget.NewFormItem("Udp port: ", a.settingsScreenWidgets.UdpPort)
+	formContainer := widget.NewForm(formUsername, formPort, formUdpPort)
 
 	vbox := container.NewVBox(widget.NewLabel(""), formContainer, widget.NewLabel("Your local IP: "+local_net.GetOutboundIP()))
 

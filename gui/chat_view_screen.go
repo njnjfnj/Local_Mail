@@ -27,12 +27,11 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 	)
 
 	// 2. "Подвал" (Footer) с полем ввода
-	inputEntry := widget.NewEntry()
-	inputEntry.SetPlaceHolder("Message...")
+	a.inputEntry.SetPlaceHolder("Message...")
 
 	sendButton := widget.NewButton("Send", func() {
 		// Логика отправки сообщения
-		inputEntry.SetText("")
+		a.inputEntry.SetText("")
 	})
 
 	attachFileButton := widget.NewButton("pin file", func() {
@@ -49,7 +48,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		nil, nil, // top, bottom
 		attachContainer, // left
 		sendButton,      // right
-		inputEntry,      // center
+		a.inputEntry,    // center
 	)
 
 	// 3. Список сообщений

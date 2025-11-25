@@ -8,10 +8,11 @@ import (
 )
 
 // TODO: сделать выбор порта возможнго айпи в настройках
-const broadcastPort = "1337"
+
 const broadcastAddress = "255.255.255.255"
 
 func upd_broadcast_test() {
+	broadcastPort := "1337"
 	for {
 		fullAddr := fmt.Sprintf("%s:%s", broadcastAddress, broadcastPort)
 
@@ -48,18 +49,19 @@ func Start_broadcast_test() {
 	go upd_broadcast_test()
 }
 
-type Connect_data struct {
+type mail_data struct {
 	Package_type int
 	Username     string
 	FullAddress  string
+	Message      string
 }
 
-func Send_connect_data_via_broadcast(username, broadcastLocalAddress, broadcastLocalPort string) error {
+func Send_connect_data_via_broadcast(username, broadcastLocalAddress, broadcastLocalPort, udpBroadcastPort string) error {
 	if username == "" {
 		return fmt.Errorf("username missing")
 	}
 
-	fullAddr := fmt.Sprintf("%s:%s", broadcastAddress, listenPort)
+	fullAddr := fmt.Sprintf("%s:%s", broadcastAddress, udpBroadcastPort)
 
 	addr, err := net.ResolveUDPAddr("udp4", fullAddr)
 	if err != nil {
@@ -74,7 +76,7 @@ func Send_connect_data_via_broadcast(username, broadcastLocalAddress, broadcastL
 
 	defer conn.Close()
 
-	message := Connect_data{
+	message := mail_data{
 		Package_type: 0,
 		Username:     username,
 		FullAddress:  fmt.Sprintf("%s:%s", broadcastLocalAddress, broadcastLocalPort),
