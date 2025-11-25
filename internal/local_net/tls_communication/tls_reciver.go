@@ -15,7 +15,7 @@ import (
 func tcpServer(host string, port *widget.Entry, ch chan string) error {
 	addr := host + ":" + port.Text
 
-	cert, err := GetOrGenerateCertificate("server.crt", "server.key")
+	cert, err := GetOrGenerateCertificate("cert.pem", "key.pem")
 	if err != nil {
 		return fmt.Errorf("cettificate error %s: %w", addr, err)
 	}
@@ -25,7 +25,7 @@ func tcpServer(host string, port *widget.Entry, ch chan string) error {
 		ClientAuth:   tls.RequireAnyClientCert,
 	}
 
-	listener, err := tls.Listen("tcp", port.Text, config)
+	listener, err := tls.Listen("tcp", ":"+port.Text, config)
 	if err != nil {
 		return fmt.Errorf("listen error %s: %w", addr, err)
 	}
