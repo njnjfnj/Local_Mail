@@ -53,6 +53,7 @@ func (a *AppGUI) updateChatView(ch chan messagetype.Message_type, chatViewMu *sy
 		fyne.Do(func() {
 			if a.messageList != nil {
 				a.messageList.Refresh()
+				a.messageList.ScrollToBottom()
 			}
 		})
 	}
