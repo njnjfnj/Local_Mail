@@ -89,6 +89,7 @@ func handleConnection(conn net.Conn, ch chan string, ch2 chan messagetype.Messag
 	case 0:
 		ch <- fmt.Sprintf("%s~%s", data.Username, data.FullAddress)
 	case 1:
+		fmt.Println(data.FullAddress, data.Message)
 		ch2 <- *messagetype.New_message(data.FullAddress, data.Message, "", "")
 	}
 	// response := []byte("Получено: " + message)

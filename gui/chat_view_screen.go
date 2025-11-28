@@ -1,11 +1,14 @@
 package gui
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
 	tls_communication "github.com/njnjfnj/Local_Mail/internal/local_net/tls_communication"
+	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
 type mail_data struct {
@@ -39,7 +42,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		tls_communication.SendPackage(fullAddr, mail_data{
 			Package_type: 1,
 			Username:     contactName,
-			FullAddress:  fullAddr,
+			FullAddress:  local_net.GetOutboundIP() + ":" + a.settingsScreenWidgets.Port.Text,
 			Message:      a.inputEntry.Text,
 		})
 		a.inputEntry.SetText("")
@@ -86,6 +89,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			a.chatViewMu.RLock()
 			defer a.chatViewMu.RUnlock()
 			c.Objects[0].(*widget.Label).SetText(a.temporaryMessagesStorage[fullAddr][i].Text.Text)
+			fmt.Println(fullAddr)
 		},
 	)
 

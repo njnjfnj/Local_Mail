@@ -44,7 +44,7 @@ func (a *AppGUI) startUpdateChatView(c chan messagetype.Message_type, chatViewMu
 func (a *AppGUI) updateChatView(ch chan messagetype.Message_type, chatViewMu *sync.RWMutex) {
 	for {
 		value := <-ch
-		fmt.Println(value)
+		fmt.Println(value.Holdername)
 
 		chatViewMu.Lock()
 		a.temporaryMessagesStorage[value.Holdername] = append(a.temporaryMessagesStorage[value.Holdername], value)
