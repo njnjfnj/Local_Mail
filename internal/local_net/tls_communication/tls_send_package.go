@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func SendConnectData(toAddr string, data interface{}) error {
+func SendPackage(toAddr string, data interface{}) error {
 	cert, err := GetOrGenerateCertificate("cert.pem", "key.pem")
 	if err != nil {
 		return fmt.Errorf("certificate error: %w", err)

@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
+	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
 	tls_communication "github.com/njnjfnj/Local_Mail/internal/local_net/tls_communication"
 	udp_broadcast "github.com/njnjfnj/Local_Mail/internal/local_net/udp_broadcast"
 	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
@@ -15,7 +16,12 @@ type AppGUI struct {
 	window         fyne.Window
 	chatListScreen fyne.CanvasObject
 	chatListView   *widget.List
-	inputEntry     *widget.Entry
+
+	inputEntry               *widget.Entry
+	temporaryMessagesStorage map[string][]messagetype.Message_type
+	updateChatViewChan       chan messagetype.Message_type
+	messageList              *widget.List
+	chatViewMu               sync.RWMutex
 
 	menuScreen            fyne.CanvasObject
 	settingsScreen        fyne.CanvasObject
@@ -37,13 +43,16 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 	a.settingsScreenWidgets = a.createsettingsWidgets()
 	a.settingsScreen = a.createSettingsScreen()
 	a.inputEntry = widget.NewEntry()
+	a.temporaryMessagesStorage = make(map[string][]messagetype.Message_type)
 
 	a.updateChatListChan = make(chan string)
+	a.updateChatViewChan = make(chan messagetype.Message_type)
 
 	udp_broadcast.Start_udp_broadcast_reciver(a.settingsScreenWidgets.Username, a.settingsScreenWidgets.Port, a.settingsScreenWidgets.UdpPort, a.updateChatListChan)
-	tls_communication.StartTCPServer(local_net.GetOutboundIP(), a.settingsScreenWidgets.Port, a.updateChatListChan)
+	tls_communication.StartTCPServer(local_net.GetOutboundIP(), a.settingsScreenWidgets.Port, a.updateChatListChan, a.updateChatViewChan)
 
 	a.startUpdateChatList(a.updateChatListChan, &a.chatListMu)
+	a.startUpdateChatView(a.updateChatViewChan, &a.chatViewMu)
 
 	return a
 }

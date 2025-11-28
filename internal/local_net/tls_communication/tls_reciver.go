@@ -10,9 +10,11 @@ import (
 	"net"
 
 	"fyne.io/fyne/v2/widget"
+
+	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
 )
 
-func tcpServer(host string, port *widget.Entry, ch chan string) error {
+func tcpServer(host string, port *widget.Entry, ch chan string, ch2 chan messagetype.Message_type) error {
 	addr := host + ":" + port.Text
 
 	cert, err := GetOrGenerateCertificate("cert.pem", "key.pem")
@@ -38,15 +40,15 @@ func tcpServer(host string, port *widget.Entry, ch chan string) error {
 			continue
 		}
 
-		go handleConnection(conn, ch)
+		go handleConnection(conn, ch, ch2)
 	}
 }
 
-func StartTCPServer(host string, port *widget.Entry, ch chan string) {
-	go tcpServer(host, port, ch)
+func StartTCPServer(host string, port *widget.Entry, ch chan string, ch2 chan messagetype.Message_type) {
+	go tcpServer(host, port, ch, ch2)
 }
 
-func handleConnection(conn net.Conn, ch chan string) {
+func handleConnection(conn net.Conn, ch chan string, ch2 chan messagetype.Message_type) {
 	defer conn.Close()
 
 	tlsConn, ok := conn.(*tls.Conn)
@@ -86,6 +88,8 @@ func handleConnection(conn net.Conn, ch chan string) {
 	switch data.Package_type {
 	case 0:
 		ch <- fmt.Sprintf("%s~%s", data.Username, data.FullAddress)
+	case 1:
+		ch2 <- *messagetype.New_message(data.FullAddress, data.Message, "", "")
 	}
 	// response := []byte("Получено: " + message)
 	// conn.Write(response)

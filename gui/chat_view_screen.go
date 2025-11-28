@@ -5,16 +5,22 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
+	tls_communication "github.com/njnjfnj/Local_Mail/internal/local_net/tls_communication"
 )
 
+type mail_data struct {
+	Package_type int
+	Username     string
+	FullAddress  string
+	Message      string
+}
+
 func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.List, fyne.CanvasObject) {
-	// 1. Верхняя панель (App Bar)
 	backButton := widget.NewButton("Back", func() {
 		a.navigateBackToList() // Навигация назад
 	})
-	infoButton := widget.NewButton("Info", func() {
-		// Логика 'Инфо о контакте'
-	})
+	// infoButton := widget.NewButton("Info", func() {
+	// })
 	title := widget.NewLabel(contactName)
 	title.TextStyle.Bold = true
 	title.Alignment = fyne.TextAlignCenter
@@ -22,24 +28,26 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 	topAppBar := container.NewBorder(
 		nil, nil, // top, bottom
 		backButton, // left
-		infoButton, // right
+		nil,        //infoButton, // right
 		title,      // center
 	)
 
-	// 2. "Подвал" (Footer) с полем ввода
 	a.inputEntry.SetPlaceHolder("Message...")
 
 	sendButton := widget.NewButton("Send", func() {
-		// Логика отправки сообщения
+		tls_communication.SendPackage(fullAddr, mail_data{
+			Package_type: 1,
+			Username:     contactName,
+			FullAddress:  fullAddr,
+			Message:      a.inputEntry.Text,
+		})
 		a.inputEntry.SetText("")
 	})
 
 	attachFileButton := widget.NewButton("pin file", func() {
-		// Логика прикрепления файла
 	})
 
 	attachPhotoButton := widget.NewButton("pin photo", func() {
-
 	})
 
 	attachContainer := container.NewVBox(attachFileButton, attachPhotoButton)
@@ -51,20 +59,21 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		a.inputEntry,    // center
 	)
 
-	// 3. Список сообщений
-	// 3. Список сообщений
-	messages := []string{ // взять с бд
-		"Hi!",
-		"Hey, how are you?",
-		"I'm good, thanks! Fyne is cool.",
-		"Totally agree with you, Fyne is great for cross-platform UI. This is a longer message to test wrapping.",
-		"That's a very long message indeed, let's see how it looks. It should wrap nicely.",
-		"Short one.",
-	}
+	// messages := []string{ // взять с бд
+	// 	"Hi!",
+	// 	"Hey, how are you?",
+	// 	"I'm good, thanks! Fyne is cool.",
+	// 	"Totally agree with you, Fyne is great for cross-platform UI. This is a longer message to test wrapping.",
+	// 	"That's a very long message indeed, let's see how it looks. It should wrap nicely.",
+	// 	"Short one.",
+	// }
 
-	messageList := widget.NewList(
+	a.messageList = nil
+	a.messageList = widget.NewList(
 		func() int {
-			return len(messages)
+			a.chatViewMu.RLock()
+			defer a.chatViewMu.RUnlock()
+			return len(a.temporaryMessagesStorage[fullAddr])
 		},
 		func() fyne.CanvasObject {
 			message := messagetype.New_message("user1", "new_text string", "", "")
@@ -73,13 +82,13 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			c := o.(*fyne.Container)
-			c.Objects[0].(*widget.Label).SetText(messages[i])
+			a.chatViewMu.RLock()
+			defer a.chatViewMu.RUnlock()
+			c.Objects[0].(*widget.Label).SetText(a.temporaryMessagesStorage[fullAddr][i].Text.Text)
 		},
 	)
 
-	// 4. Собираем экран
-	layout := container.NewBorder(topAppBar, bottomInputBar, nil, nil, messageList)
+	layout := container.NewBorder(topAppBar, bottomInputBar, nil, nil, a.messageList)
 
-	// ИЗМЕНЕНИЕ: Возвращаем и список, и layout
-	return messageList, layout
+	return a.messageList, layout
 }

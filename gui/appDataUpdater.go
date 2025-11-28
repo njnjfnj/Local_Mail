@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"fyne.io/fyne/v2"
+	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
 	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
@@ -33,5 +34,24 @@ func (a *AppGUI) updateChatList(ch chan string, chatListMu *sync.RWMutex) {
 			a.chatListView.Refresh()
 		})
 
+	}
+}
+
+func (a *AppGUI) startUpdateChatView(c chan messagetype.Message_type, chatViewMu *sync.RWMutex) {
+	go a.updateChatView(c, chatViewMu)
+}
+
+func (a *AppGUI) updateChatView(ch chan messagetype.Message_type, chatViewMu *sync.RWMutex) {
+	for {
+		value := <-ch
+		fmt.Println(value)
+
+		chatViewMu.Lock()
+		a.temporaryMessagesStorage[value.Holdername] = append(a.temporaryMessagesStorage[value.Holdername], value)
+		chatViewMu.Unlock()
+
+		fyne.Do(func() {
+			a.messageList.Refresh()
+		})
 	}
 }
