@@ -1,6 +1,7 @@
 package messagetype
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"fyne.io/fyne/v2"
@@ -30,9 +31,10 @@ func New_file(new_file_path, new_HolderIP string, a fyne.Window, startFileDownlo
 				return
 			}
 
-			savePath := filepath.Join(uri.Path(), "share", filepath.Base(file.File_path))
+			savePath := filepath.Join(uri.Path(), filepath.Base(file.File_path))
+			fmt.Println("alolaolaoaloa: ", file.File_path)
 
-			startFileDownloadingChan <- new_HolderIP + "~" + savePath
+			startFileDownloadingChan <- fmt.Sprint(file.HolderIP, "~", file.File_path, "~", savePath)
 		}, a)
 	})
 
@@ -71,9 +73,10 @@ func CopyFileType(new_file *File_type) *File_type {
 				return
 			}
 
-			savePath := filepath.Join(uri.Path(), "share", filepath.Base(file.File_path))
+			savePath := filepath.Join(uri.Path(), filepath.Base(file.File_path))
+			fmt.Println("alolaolaoaloa: ", file.File_path)
 
-			file.StartFileDownloadingChan <- file.HolderIP + "~" + savePath
+			file.StartFileDownloadingChan <- fmt.Sprint(file.HolderIP, "~", file.File_path, "~", savePath)
 		}, file.a)
 	})
 

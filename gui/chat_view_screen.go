@@ -81,10 +81,10 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		}, a.window)
 	})
 
-	attachPhotoButton := widget.NewButton("pin photo", func() {
-	})
+	// attachPhotoButton := widget.NewButton("pin photo", func() {
+	// })
 
-	attachContainer := container.NewVBox(attachFileButton, attachPhotoButton)
+	attachContainer := container.NewVBox(attachFileButton /*, attachPhotoButton*/)
 
 	bottomInputBar := container.NewBorder(
 		nil, nil, // top, bottom

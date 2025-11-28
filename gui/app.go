@@ -88,6 +88,7 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 
 	a.startUpdateChatList(a.updateChatListChan, &a.chatListMu)
 	a.startUpdateChatView(a.updateChatViewChan, &a.chatViewMu)
+	a.startDownloadingFiles(a.startFileDownloadingChan)
 
 	return a
 }
