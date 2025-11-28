@@ -59,28 +59,24 @@ func New_nill_file() *File_type {
 	return file
 }
 
-func CopyFileType(new_file *File_type) *File_type {
-	file := &File_type{
-		File_path:                new_file.File_path,
-		HolderIP:                 new_file.HolderIP,
-		StartFileDownloadingChan: new_file.StartFileDownloadingChan,
-		a:                        new_file.a,
-	}
+func (f *File_type) CopyFileType(new_file *File_type) {
+	f.a = new_file.a
+	f.File_path = new_file.File_path
+	f.HolderIP = new_file.HolderIP
+	f.StartFileDownloadingChan = new_file.StartFileDownloadingChan
 
-	button := widget.NewButton(filepath.Base(file.File_path), func() {
+	button := widget.NewButton(filepath.Base(f.File_path), func() {
 		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
 			if uri == nil || err != nil {
 				return
 			}
 
-			savePath := filepath.Join(uri.Path(), filepath.Base(file.File_path))
-			fmt.Println("alolaolaoaloa: ", file.File_path)
+			savePath := filepath.Join(uri.Path(), filepath.Base(f.File_path))
+			fmt.Println("alolaolaoaloa: ", f.File_path)
 
-			file.StartFileDownloadingChan <- fmt.Sprint(file.HolderIP, "~", file.File_path, "~", savePath)
-		}, file.a)
+			f.StartFileDownloadingChan <- fmt.Sprint(f.HolderIP, "~", f.File_path, "~", savePath)
+		}, f.a)
 	})
 
-	file.Button = button
-
-	return file
+	f.Button = button
 }

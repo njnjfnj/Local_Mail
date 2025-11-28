@@ -102,7 +102,13 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		func() fyne.CanvasObject {
 			message := messagetype.New_message("user1", "new_text string", "", "", a.window, a.startFileDownloadingChan)
 
-			return container.NewVBox(message.Text, message.Image, message.File)
+			message.Text.Wrapping = fyne.TextWrapWord
+			message.Text.TextStyle = fyne.TextStyle{Bold: true}
+
+			message.File.Alignment = widget.ButtonAlignLeading
+			message.File.Hide()
+
+			return container.NewVBox(message.Text, message.File /*, message.Image*/)
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			c := o.(*fyne.Container)
@@ -110,8 +116,11 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			defer a.chatViewMu.RUnlock()
 			c.Objects[0].(*widget.Label).SetText(a.temporaryMessagesStorage[fullAddr][i].Text.Text)
 			if a.temporaryMessagesStorage[fullAddr][i].File != nil {
-				c.Objects[2] = messagetype.CopyFileType(a.temporaryMessagesStorage[fullAddr][i].File)
+				fileTemporary := c.Objects[1].(*messagetype.File_type)
+				fileTemporary.CopyFileType(a.temporaryMessagesStorage[fullAddr][i].File)
+				fileTemporary.Show()
 			}
+			c.Refresh()
 			fmt.Println("Chat: ", fullAddr)
 		},
 	)
@@ -120,3 +129,5 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 
 	return a.messageList, layout
 }
+
+//= messagetype.CopyFileType(a.temporaryMessagesStorage[fullAddr][i].File)
