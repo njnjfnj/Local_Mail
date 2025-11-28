@@ -6,15 +6,19 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net"
+	"os"
+	"path/filepath"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 
 	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
 )
 
-func tcpServer(host string, port *widget.Entry, ch chan string, ch2 chan messagetype.Message_type) error {
+func tcpServer(host string, port *widget.Entry, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window) error {
 	addr := host + ":" + port.Text
 
 	cert, err := GetOrGenerateCertificate("cert.pem", "key.pem")
@@ -40,15 +44,15 @@ func tcpServer(host string, port *widget.Entry, ch chan string, ch2 chan message
 			continue
 		}
 
-		go handleConnection(conn, ch, ch2)
+		go handleConnection(conn, ch, startFileDownloadingChan, ch2, a)
 	}
 }
 
-func StartTCPServer(host string, port *widget.Entry, ch chan string, ch2 chan messagetype.Message_type) {
-	go tcpServer(host, port, ch, ch2)
+func StartTCPServer(host string, port *widget.Entry, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window) {
+	go tcpServer(host, port, ch, startFileDownloadingChan, ch2, a)
 }
 
-func handleConnection(conn net.Conn, ch chan string, ch2 chan messagetype.Message_type) {
+func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window) {
 	defer conn.Close()
 
 	tlsConn, ok := conn.(*tls.Conn)
@@ -86,12 +90,25 @@ func handleConnection(conn net.Conn, ch chan string, ch2 chan messagetype.Messag
 	}
 
 	switch data.Package_type {
-	case 0:
+	case PackageTypeHandshake:
 		ch <- fmt.Sprintf("%s~%s", data.Username, data.FullAddress)
-	case 1:
-		fmt.Println(data.FullAddress, data.Message)
-		ch2 <- *messagetype.New_message(data.FullAddress, data.Message, "", "")
+	case PackageTypeMessage:
+		ch2 <- *messagetype.New_text_message(data.FullAddress, data.Message)
+	case PackageTypeSendFileInfo:
+		ch2 <- *messagetype.New_message(data.FullAddress, "", data.FilePath, "", a, startFileDownloadingChan)
+	case PackageTypeFileReq:
+		safePath := filepath.Join("Shared", filepath.Base(data.FilePath))
+
+		file, err := os.Open(safePath)
+		if err != nil {
+			log.Println("file is not found:", safePath)
+		}
+		defer file.Close()
+
+		_, err = io.Copy(conn, file)
+		if err != nil {
+			log.Println("Ошибка отправки файла:", err)
+		}
+
 	}
-	// response := []byte("Получено: " + message)
-	// conn.Write(response)
 }

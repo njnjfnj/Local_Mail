@@ -5,4 +5,12 @@ type mail_data struct {
 	Username     string
 	FullAddress  string
 	Message      string
+	FilePath     string
 }
+
+const (
+	PackageTypeHandshake    = 0
+	PackageTypeMessage      = 1
+	PackageTypeSendFileInfo = 2
+	PackageTypeFileReq      = 3
+)

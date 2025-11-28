@@ -1,8 +1,7 @@
 package messagetype
 
 import (
-	"path/filepath"
-
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/widget"
 )
@@ -14,7 +13,7 @@ type Message_type struct {
 	Holdername string
 }
 
-func New_message(holdername, new_text, new_file_path, new_image_path string) *Message_type {
+func New_message(holdername, new_text, new_file_path, new_image_path string, a fyne.Window, startFileDownloadingChan chan string) *Message_type {
 	m := &Message_type{}
 
 	m.Holdername = holdername
@@ -25,7 +24,7 @@ func New_message(holdername, new_text, new_file_path, new_image_path string) *Me
 	}
 
 	if new_file_path != "" {
-		m.File = New_file(new_file_path, filepath.Base(new_file_path), holdername)
+		m.File = New_file(new_file_path, holdername, a, startFileDownloadingChan)
 		// проверка на ошибку нахождения файла, в случае ошибки выкинуть ошибку
 	} else {
 		m.File = New_nill_file()
@@ -37,6 +36,19 @@ func New_message(holdername, new_text, new_file_path, new_image_path string) *Me
 	} else {
 		m.Image = canvas.NewImageFromImage(nil)
 		m.Image.Hide()
+	}
+
+	return m
+}
+
+func New_text_message(holdername, new_text string) *Message_type {
+	m := &Message_type{}
+
+	m.Holdername = holdername
+
+	m.Text = widget.NewLabel(new_text)
+	if new_text == "" {
+		m.Text.Hide()
 	}
 
 	return m

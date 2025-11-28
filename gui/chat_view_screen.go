@@ -2,9 +2,14 @@ package gui
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
 	tls_communication "github.com/njnjfnj/Local_Mail/internal/local_net/tls_communication"
@@ -38,7 +43,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 	a.inputEntry.SetPlaceHolder("Message...")
 
 	sendButton := widget.NewButton("Send", func() {
-		a.updateChatViewChan <- *messagetype.New_message(fullAddr, "ME: "+a.inputEntry.Text, "", "")
+		a.updateChatViewChan <- *messagetype.New_text_message(fullAddr, "ME: "+a.inputEntry.Text)
 		tls_communication.SendPackage(fullAddr, mail_data{
 			Package_type: 1,
 			Username:     contactName,
@@ -48,7 +53,32 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		a.inputEntry.SetText("")
 	})
 
-	attachFileButton := widget.NewButton("pin file", func() {
+	attachFileButton := widget.NewButton("send file", func() {
+		dialog.ShowFileOpen(func(reader fyne.URIReadCloser, err error) {
+			if err != nil || reader == nil {
+				return
+			}
+			defer reader.Close()
+
+			filePath := reader.URI().Path()
+			sourceFile, _ := os.Open(filePath)
+			defer sourceFile.Close()
+
+			os.MkdirAll("Shared", 0755)
+			destPath := filepath.Join("Shared", filepath.Base(filePath))
+
+			destFile, err := os.Create(destPath)
+			if err != nil {
+				log.Println("error os.Create: ", err.Error())
+			}
+			defer destFile.Close()
+
+			if _, err = io.Copy(destFile, sourceFile); err != nil {
+				log.Println("error io.Copy: ", err.Error())
+			}
+			a.updateChatViewChan <- *messagetype.New_message(fullAddr, "ME: ", destPath, "", a.window, a.startFileDownloadingChan)
+
+		}, a.window)
 	})
 
 	attachPhotoButton := widget.NewButton("pin photo", func() {
@@ -63,15 +93,6 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		a.inputEntry,    // center
 	)
 
-	// messages := []string{ // взять с бд
-	// 	"Hi!",
-	// 	"Hey, how are you?",
-	// 	"I'm good, thanks! Fyne is cool.",
-	// 	"Totally agree with you, Fyne is great for cross-platform UI. This is a longer message to test wrapping.",
-	// 	"That's a very long message indeed, let's see how it looks. It should wrap nicely.",
-	// 	"Short one.",
-	// }
-
 	a.messageList = widget.NewList(
 		func() int {
 			a.chatViewMu.RLock()
@@ -79,7 +100,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			return len(a.temporaryMessagesStorage[fullAddr])
 		},
 		func() fyne.CanvasObject {
-			message := messagetype.New_message("user1", "new_text string", "", "")
+			message := messagetype.New_message("user1", "new_text string", "", "", a.window, a.startFileDownloadingChan)
 
 			return container.NewVBox(message.Text, message.Image, message.File)
 		},

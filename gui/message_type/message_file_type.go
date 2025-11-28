@@ -1,27 +1,37 @@
 package messagetype
 
-import "fyne.io/fyne/v2/widget"
+import (
+	"path/filepath"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/widget"
+)
 
 type File_type struct {
 	*widget.Button
-	File_path  string
-	File_name  string
-	Holdername string
+	File_path                string
+	HolderIP                 string
+	startFileDownloadingChan chan string
 }
 
-func New_file(new_file_path, new_file_name, new_holdername string) *File_type {
-	// TODO: сделать нахождения файла, если не находиться выкидать ошибку
-	// сохранить путь к файлу в локальной базе данных.
+func New_file(new_file_path, new_HolderIP string, a fyne.Window, startFileDownloadingChan chan string) *File_type {
 	file := &File_type{
-		File_path:  new_file_path,
-		File_name:  new_file_name,
-		Holdername: new_holdername,
+		File_path:                new_file_path,
+		HolderIP:                 new_HolderIP,
+		startFileDownloadingChan: startFileDownloadingChan,
 	}
 
-	button := widget.NewButton(new_file_name, func() {
-		// указать логику нахождения айпи владельца за юзернеймом
-		// в сети, выбор где сохранить файл и собственно зашифрованая
-		// передача файла
+	button := widget.NewButton(filepath.Base(file.File_path), func() {
+		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
+			if uri == nil || err != nil {
+				return
+			}
+
+			savePath := filepath.Join(uri.Path(), "share", filepath.Base(file.File_path))
+
+			startFileDownloadingChan <- new_HolderIP + "~" + savePath
+		}, a)
 	})
 
 	file.Button = button
@@ -31,9 +41,9 @@ func New_file(new_file_path, new_file_name, new_holdername string) *File_type {
 
 func New_nill_file() *File_type {
 	file := &File_type{
-		File_path:  "",
-		File_name:  "",
-		Holdername: "",
+		File_path:                "",
+		HolderIP:                 "",
+		startFileDownloadingChan: nil,
 	}
 
 	button := widget.NewButton("", func() {})

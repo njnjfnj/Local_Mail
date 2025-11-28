@@ -23,6 +23,7 @@ type AppGUI struct {
 	inputEntry               *widget.Entry
 	temporaryMessagesStorage map[string][]messagetype.Message_type
 	updateChatViewChan       chan messagetype.Message_type
+	startFileDownloadingChan chan string
 	messageList              *widget.List
 	chatViewMu               sync.RWMutex
 
@@ -62,6 +63,7 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 
 	a.updateChatListChan = make(chan string)
 	a.updateChatViewChan = make(chan messagetype.Message_type)
+	a.startFileDownloadingChan = make(chan string)
 
 	if string(settings) != "" {
 		a.settingsScreenWidgets.Username.SetText(settingsLoad.Username)
@@ -69,8 +71,20 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 		a.settingsScreenWidgets.UdpPort.SetText(settingsLoad.UdpPort)
 	}
 
-	udp_broadcast.Start_udp_broadcast_reciver(a.settingsScreenWidgets.Username, a.settingsScreenWidgets.Port, a.settingsScreenWidgets.UdpPort, a.updateChatListChan)
-	tls_communication.StartTCPServer(local_net.GetOutboundIP(), a.settingsScreenWidgets.Port, a.updateChatListChan, a.updateChatViewChan)
+	udp_broadcast.Start_udp_broadcast_reciver(
+		a.settingsScreenWidgets.Username,
+		a.settingsScreenWidgets.Port,
+		a.settingsScreenWidgets.UdpPort,
+		a.updateChatListChan,
+	)
+	tls_communication.StartTCPServer(
+		local_net.GetOutboundIP(),
+		a.settingsScreenWidgets.Port,
+		a.updateChatListChan,
+		a.startFileDownloadingChan,
+		a.updateChatViewChan,
+		a.window,
+	)
 
 	a.startUpdateChatList(a.updateChatListChan, &a.chatListMu)
 	a.startUpdateChatView(a.updateChatViewChan, &a.chatViewMu)
