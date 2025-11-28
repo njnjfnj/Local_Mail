@@ -51,7 +51,9 @@ func (a *AppGUI) updateChatView(ch chan messagetype.Message_type, chatViewMu *sy
 		chatViewMu.Unlock()
 
 		fyne.Do(func() {
-			a.messageList.Refresh()
+			if a.messageList != nil {
+				a.messageList.Refresh()
+			}
 		})
 	}
 }
