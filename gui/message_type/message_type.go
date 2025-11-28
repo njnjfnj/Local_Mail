@@ -17,6 +17,8 @@ type Message_type struct {
 func New_message(holdername, new_text, new_file_path, new_image_path string) *Message_type {
 	m := &Message_type{}
 
+	m.Holdername = holdername
+
 	m.Text = widget.NewLabel(new_text)
 	if new_text == "" {
 		m.Text.Hide()

@@ -38,7 +38,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 	a.inputEntry.SetPlaceHolder("Message...")
 
 	sendButton := widget.NewButton("Send", func() {
-		a.updateChatViewChan <- *messagetype.New_message("Me", a.inputEntry.Text, "", "")
+		a.updateChatViewChan <- *messagetype.New_message(fullAddr, "ME: "+a.inputEntry.Text, "", "")
 		tls_communication.SendPackage(fullAddr, mail_data{
 			Package_type: 1,
 			Username:     contactName,
@@ -72,7 +72,6 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 	// 	"Short one.",
 	// }
 
-	a.messageList = nil
 	a.messageList = widget.NewList(
 		func() int {
 			a.chatViewMu.RLock()
@@ -89,7 +88,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			a.chatViewMu.RLock()
 			defer a.chatViewMu.RUnlock()
 			c.Objects[0].(*widget.Label).SetText(a.temporaryMessagesStorage[fullAddr][i].Text.Text)
-			fmt.Println(fullAddr)
+			fmt.Println("Chat: ", fullAddr)
 		},
 	)
 
