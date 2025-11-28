@@ -12,7 +12,7 @@ type File_type struct {
 	*widget.Button
 	File_path                string
 	HolderIP                 string
-	startFileDownloadingChan chan string
+	StartFileDownloadingChan chan string
 	a                        fyne.Window
 }
 
@@ -20,7 +20,7 @@ func New_file(new_file_path, new_HolderIP string, a fyne.Window, startFileDownlo
 	file := &File_type{
 		File_path:                new_file_path,
 		HolderIP:                 new_HolderIP,
-		startFileDownloadingChan: startFileDownloadingChan,
+		StartFileDownloadingChan: startFileDownloadingChan,
 		a:                        a,
 	}
 
@@ -45,7 +45,7 @@ func New_nill_file() *File_type {
 	file := &File_type{
 		File_path:                "",
 		HolderIP:                 "",
-		startFileDownloadingChan: nil,
+		StartFileDownloadingChan: nil,
 	}
 
 	button := widget.NewButton("", func() {})
@@ -61,7 +61,7 @@ func CopyFileType(new_file *File_type) *File_type {
 	file := &File_type{
 		File_path:                new_file.File_path,
 		HolderIP:                 new_file.HolderIP,
-		startFileDownloadingChan: new_file.startFileDownloadingChan,
+		StartFileDownloadingChan: new_file.StartFileDownloadingChan,
 		a:                        new_file.a,
 	}
 
@@ -73,7 +73,7 @@ func CopyFileType(new_file *File_type) *File_type {
 
 			savePath := filepath.Join(uri.Path(), "share", filepath.Base(file.File_path))
 
-			file.startFileDownloadingChan <- file.HolderIP + "~" + savePath
+			file.StartFileDownloadingChan <- file.HolderIP + "~" + savePath
 		}, file.a)
 	})
 

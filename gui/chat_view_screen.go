@@ -109,7 +109,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			a.chatViewMu.RLock()
 			defer a.chatViewMu.RUnlock()
 			c.Objects[0].(*widget.Label).SetText(a.temporaryMessagesStorage[fullAddr][i].Text.Text)
-			if a.temporaryMessagesStorage[fullAddr][i].File.Visible() {
+			if a.temporaryMessagesStorage[fullAddr][i].File != nil {
 				c.Objects[2] = messagetype.CopyFileType(a.temporaryMessagesStorage[fullAddr][i].File)
 			}
 			fmt.Println("Chat: ", fullAddr)
