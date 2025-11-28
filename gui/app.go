@@ -1,6 +1,9 @@
 package gui
 
 import (
+	"encoding/json"
+	"fmt"
+	"os"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -34,6 +37,18 @@ type AppGUI struct {
 
 // NewAppGUI создает новый экземпляр нашего UI
 func NewAppGUI(w fyne.Window) *AppGUI {
+	settings, err := os.ReadFile("settings.json")
+	if err != nil {
+		fmt.Println("error loading savings:", err)
+	}
+
+	var settingsLoad settingsSaving
+
+	err = json.Unmarshal(settings, &settingsLoad)
+	if err != nil {
+		fmt.Println("error decoding JSON:", err)
+	}
+
 	a := &AppGUI{
 		window: w,
 	}
@@ -47,6 +62,12 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 
 	a.updateChatListChan = make(chan string)
 	a.updateChatViewChan = make(chan messagetype.Message_type)
+
+	if string(settings) != "" {
+		a.settingsScreenWidgets.Username.SetText(settingsLoad.Username)
+		a.settingsScreenWidgets.Port.SetText(settingsLoad.Port)
+		a.settingsScreenWidgets.UdpPort.SetText(settingsLoad.UdpPort)
+	}
 
 	udp_broadcast.Start_udp_broadcast_reciver(a.settingsScreenWidgets.Username, a.settingsScreenWidgets.Port, a.settingsScreenWidgets.UdpPort, a.updateChatListChan)
 	tls_communication.StartTCPServer(local_net.GetOutboundIP(), a.settingsScreenWidgets.Port, a.updateChatListChan, a.updateChatViewChan)

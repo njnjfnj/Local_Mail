@@ -1,6 +1,10 @@
 package gui
 
 import (
+	"encoding/json"
+	"fmt"
+	"os"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 
@@ -29,13 +33,27 @@ func (a *AppGUI) createsettingsWidgets() *SettingsWidgets {
 	}
 }
 
+type settingsSaving struct {
+	Username string
+	Port     string
+	UdpPort  string
+}
+
 func (a *AppGUI) createSettingsScreen() fyne.CanvasObject {
 	backButton := widget.NewButton("Back", func() {
 		a.navigateToMenu()
 	})
 
 	saveButton := widget.NewButton("Save", func() {
+		saving, _ := json.Marshal(settingsSaving{
+			Username: a.settingsScreenWidgets.Username.Text,
+			Port:     a.settingsScreenWidgets.Port.Text,
+			UdpPort:  a.settingsScreenWidgets.UdpPort.Text,
+		})
 
+		if err := os.WriteFile("settings.json", saving, 0644); err != nil {
+			fmt.Println("error settings saving:", err)
+		}
 	})
 
 	title := widget.NewLabel("Settings")
