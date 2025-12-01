@@ -16,7 +16,7 @@ func SendPackage(toAddr string, data interface{}) error {
 
 	conf := &tls.Config{
 		InsecureSkipVerify: true,
-		Certificates:       []tls.Certificate{cert}, // Не забываем сертификат!
+		Certificates:       []tls.Certificate{cert},
 	}
 
 	conn, err := tls.Dial("tcp", toAddr, conf)

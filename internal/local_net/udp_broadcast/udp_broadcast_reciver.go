@@ -38,7 +38,7 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *
 			}
 
 			message := string(buffer[:n])
-			fmt.Printf("Получено '%s' от %s\n", message, remoteAddr)
+			fmt.Printf("recived '%s' from %s\n", message, remoteAddr)
 
 			var data mail_data
 			json.Unmarshal([]byte(message), &data)

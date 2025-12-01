@@ -14,7 +14,6 @@ import (
 	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
-// AppGUI хранит состояние нашего UI
 type AppGUI struct {
 	window         fyne.Window
 	chatListScreen fyne.CanvasObject
@@ -37,7 +36,6 @@ type AppGUI struct {
 	updateChatListChan chan string
 }
 
-// NewAppGUI создает новый экземпляр нашего UI
 func NewAppGUI(w fyne.Window) *AppGUI {
 	settings, err := os.ReadFile("settings.json")
 	if err != nil {
@@ -96,12 +94,10 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 	return a
 }
 
-// CreateMainLayout возвращает стартовый экран приложения
 func (a *AppGUI) CreateMainLayout() fyne.CanvasObject {
 	return a.chatListScreen
 }
 
-// ИЗМЕНЕНИЕ: Эта функция теперь управляет прокруткой
 func (a *AppGUI) navigateToChatView(contactName, fullAddr string) {
 	messageList, chatScreen := a.createChatViewScreen(contactName, fullAddr)
 

@@ -76,8 +76,8 @@ func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
 
 			nameLabel.SetText(username)
 			userFullAddr.SetText(fullAddr)
-			// сделать что-то типа базы данных, возможно даже sqlite
-			// для сохранения переписок, файлов, картинок и тд
+			// TODO: make sort of db for mails.
+			// Can use for example sqlite
 		},
 	)
 

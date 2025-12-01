@@ -1,8 +1,6 @@
 package gui
 
 import (
-	"fmt"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 )
@@ -35,8 +33,6 @@ func (e *SubmitEntry) KeyUp(key *fyne.KeyEvent) {
 }
 
 func (e *SubmitEntry) TypedKey(key *fyne.KeyEvent) {
-	fmt.Println(fyne.KeyF8)
-
 	if key.Name == fyne.KeyReturn && !e.shiftDown {
 		if e.OnSubmit != nil {
 			e.OnSubmit()

@@ -65,10 +65,8 @@ func (f *File_type) CopyFileType(new_file *File_type) {
 	f.HolderIP = new_file.HolderIP
 	f.StartFileDownloadingChan = new_file.StartFileDownloadingChan
 
-	// 1. Обновляем текст на кнопке, а не создаем новую
 	f.SetText(filepath.Base(f.File_path))
 
-	// 2. Обновляем функцию поведения (OnTapped)
 	f.OnTapped = func() {
 		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
 			if uri == nil || err != nil {
@@ -76,12 +74,10 @@ func (f *File_type) CopyFileType(new_file *File_type) {
 			}
 
 			savePath := filepath.Join(uri.Path(), filepath.Base(f.File_path))
-			// fmt.Println("debug: ", f.File_path)
 
 			f.StartFileDownloadingChan <- fmt.Sprint(f.HolderIP, "~", f.File_path, "~", savePath)
 		}, f.a)
 	}
 
-	// 3. Сообщаем виджету, что его нужно перерисовать
 	f.Refresh()
 }

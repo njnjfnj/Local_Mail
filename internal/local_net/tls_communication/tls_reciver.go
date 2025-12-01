@@ -57,19 +57,19 @@ func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, c
 
 	tlsConn, ok := conn.(*tls.Conn)
 	if !ok {
-		log.Println("Это не TLS соединение!")
+		log.Println("it is not tls connection")
 		return
 	}
 
 	err := tlsConn.Handshake()
 	if err != nil {
-		log.Println("Ошибка рукопожатия:", err)
+		log.Println("handshake error:", err)
 		return
 	}
 
 	state := tlsConn.ConnectionState()
 	if len(state.PeerCertificates) == 0 {
-		log.Println("Собеседник не прислал сертификат")
+		log.Println("target did not send a certificate")
 		return
 	}
 
@@ -78,10 +78,7 @@ func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, c
 	hash := sha256.Sum256(peerCert.Raw)
 	fingerprint := hex.EncodeToString(hash[:])
 
-	fmt.Printf("Подключился пользователь с ID: %s\n", fingerprint)
-
-	// message := string(buffer[:n])
-	// fmt.Printf("Принято сообщение от %s: %s\n", conn.RemoteAddr().String(), message)
+	fmt.Printf("connected user ID: %s\n", fingerprint)
 
 	var data mail_data
 	if err := json.NewDecoder(conn).Decode(&data); err != nil {
@@ -105,11 +102,9 @@ func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, c
 		}
 		defer file.Close()
 
-		fmt.Printf("Начинаю отправку файла: %s\n", safePath)
-
 		_, err = io.Copy(conn, file)
 		if err != nil {
-			log.Println("Ошибка отправки файла:", err)
+			log.Println("file sending error:", err)
 			return
 		}
 
