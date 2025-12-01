@@ -58,7 +58,8 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 	a.menuScreen = a.createMenuScreen()
 	a.settingsScreenWidgets = a.createsettingsWidgets()
 	a.settingsScreen = a.createSettingsScreen()
-	a.inputEntry = widget.NewEntry()
+	a.inputEntry = widget.NewMultiLineEntry()
+	a.inputEntry.Wrapping = fyne.TextWrapWord
 	a.temporaryMessagesStorage = make(map[string][]messagetype.Message_type)
 
 	a.updateChatListChan = make(chan string)

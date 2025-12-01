@@ -1,11 +1,11 @@
 package gui
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -51,12 +51,13 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 	a.inputEntry.SetPlaceHolder("Message...")
 
 	sendButton := widget.NewButton("Send", func() {
-		a.updateChatViewChan <- *messagetype.New_text_message(fullAddr, "ME: "+a.inputEntry.Text)
+		msg := messagetype.My_new_text_message(fullAddr, time.Now().Format("02/01/2006 15:04")+": "+a.inputEntry.Text)
+		a.updateChatViewChan <- *msg
 		tls_communication.SendPackage(fullAddr, mail_data{
 			Package_type: 1,
 			Username:     contactName,
 			FullAddress:  local_net.GetOutboundIP() + ":" + a.settingsScreenWidgets.Port.Text,
-			Message:      a.inputEntry.Text,
+			Message:      time.Now().Format("02/01/2006 15:04") + ": " + a.inputEntry.Text,
 		})
 		a.inputEntry.SetText("")
 	})
@@ -84,7 +85,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			if _, err = io.Copy(destFile, sourceFile); err != nil {
 				log.Println("error io.Copy: ", err.Error())
 			}
-			a.updateChatViewChan <- *messagetype.New_message(fullAddr, "ME: ", destPath, "", a.window, a.startFileDownloadingChan)
+			a.updateChatViewChan <- *messagetype.New_message(fullAddr, "", destPath, "", a.window, a.startFileDownloadingChan)
 			tls_communication.SendPackage(fullAddr, mail_data{
 				Package_type: PackageTypeSendFileInfo,
 				Username:     a.settingsScreenWidgets.Username.Text,
@@ -98,13 +99,15 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 	// attachPhotoButton := widget.NewButton("pin photo", func() {
 	// })
 
-	attachContainer := container.NewVBox(attachFileButton /*, attachPhotoButton*/)
+	a.inputEntry.ActionItem = sendButton
+	sendButton.Importance = widget.LowImportance
 
+	//attachContainer := container.NewVBox(attachFileButton /*, attachPhotoButton*/)
 	bottomInputBar := container.NewBorder(
 		nil, nil, // top, bottom
-		attachContainer, // left
-		sendButton,      // right
-		a.inputEntry,    // center
+		attachFileButton, // left
+		nil,              // right
+		a.inputEntry,     // center
 	)
 
 	a.messageList = widget.NewList(
@@ -114,10 +117,11 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			return len(a.temporaryMessagesStorage[fullAddr])
 		},
 		func() fyne.CanvasObject {
-			message := messagetype.New_message("user1", "new_text string", "", "", a.window, a.startFileDownloadingChan)
+			message := messagetype.New_message("user1", "~~new_text~string~~1125", "", "", a.window, a.startFileDownloadingChan)
 
 			message.Text.Wrapping = fyne.TextWrapWord
-			message.Text.TextStyle = fyne.TextStyle{Bold: true}
+			message.Text.Scroll = fyne.ScrollNone
+			// message.Text.TextStyle = fyne.TextStyle{Bold: true}
 
 			message.File.Alignment = widget.ButtonAlignLeading
 			message.File.Hide()
@@ -127,15 +131,28 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			c := o.(*fyne.Container)
 			a.chatViewMu.RLock()
-			defer a.chatViewMu.RUnlock()
-			c.Objects[0].(*widget.Label).SetText(a.temporaryMessagesStorage[fullAddr][i].Text.Text)
-			if a.temporaryMessagesStorage[fullAddr][i].File != nil {
+			msgData := a.temporaryMessagesStorage[fullAddr][i]
+			a.chatViewMu.RUnlock()
+
+			c.Objects[0].(*widget.Entry).SetText(msgData.Text.Text)
+			if msgData.IsMine {
+				c.Objects[0].(*widget.Entry).TextStyle = fyne.TextStyle{Italic: true}
+			}
+
+			if msgData.Text.Text != "" {
+				c.Objects[0].(*widget.Entry).Show()
+			} else {
+				c.Objects[0].(*widget.Entry).Hide()
+			}
+			if msgData.File != nil {
 				fileTemporary := c.Objects[1].(*messagetype.File_type)
-				fileTemporary.CopyFileType(a.temporaryMessagesStorage[fullAddr][i].File)
+				fileTemporary.CopyFileType(msgData.File)
 				fileTemporary.Show()
+			} else {
+				c.Objects[1].(*messagetype.File_type).Hide()
+				c.Objects[1].(*messagetype.File_type).SetText("")
 			}
 			c.Refresh()
-			fmt.Println("Chat: ", fullAddr)
 		},
 	)
 
@@ -143,5 +160,3 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 
 	return a.messageList, layout
 }
-
-//= messagetype.CopyFileType(a.temporaryMessagesStorage[fullAddr][i].File)

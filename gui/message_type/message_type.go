@@ -7,10 +7,11 @@ import (
 )
 
 type Message_type struct {
-	Text       *widget.Label
+	Text       *widget.Entry
 	Image      *canvas.Image
 	File       *File_type
 	Holdername string
+	IsMine     bool
 }
 
 func New_message(holdername, new_text, new_file_path, new_image_path string, a fyne.Window, startFileDownloadingChan chan string) *Message_type {
@@ -18,7 +19,11 @@ func New_message(holdername, new_text, new_file_path, new_image_path string, a f
 
 	m.Holdername = holdername
 
-	m.Text = widget.NewLabel(new_text)
+	m.Text = widget.NewMultiLineEntry()
+	m.Text.SetText(new_text)
+	// m.Text.Wrapping = fyne.TextWrapWord
+	// m.Text.Scroll = fyne.ScrollNone
+
 	if new_text == "" {
 		m.Text.Hide()
 	}
@@ -38,6 +43,8 @@ func New_message(holdername, new_text, new_file_path, new_image_path string, a f
 		m.Image.Hide()
 	}
 
+	m.IsMine = false
+
 	return m
 }
 
@@ -45,11 +52,36 @@ func New_text_message(holdername, new_text string) *Message_type {
 	m := &Message_type{}
 
 	m.Holdername = holdername
+	//m.HolderNameParent = myFullAddress
 
-	m.Text = widget.NewLabel(new_text)
+	m.Text = widget.NewMultiLineEntry()
+	m.Text.SetText(new_text)
+	// m.Text.Wrapping = fyne.TextWrapWord
+	// m.Text.Scroll = fyne.ScrollNone
 	if new_text == "" {
 		m.Text.Hide()
 	}
+
+	m.IsMine = false
+
+	return m
+}
+
+func My_new_text_message(holdername, new_text string) *Message_type {
+	m := &Message_type{}
+
+	m.Holdername = holdername
+	//m.HolderNameParent = myFullAddress
+
+	m.Text = widget.NewMultiLineEntry()
+	m.Text.SetText(new_text)
+	// m.Text.Wrapping = fyne.TextWrapWord
+	// m.Text.Scroll = fyne.ScrollNone
+	if new_text == "" {
+		m.Text.Hide()
+	}
+
+	m.IsMine = true
 
 	return m
 }
