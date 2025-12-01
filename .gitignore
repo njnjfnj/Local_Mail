@@ -3,4 +3,4 @@ key.pem
 settings.json
 Local_Mail.apk
 Shared/
-.vscode/
+./.vscode/
