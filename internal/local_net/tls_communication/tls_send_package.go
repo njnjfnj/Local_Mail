@@ -51,7 +51,7 @@ func DownloadFile(peerAddr string, filePath string, savePath string) error {
 	defer conn.Close()
 
 	req := mail_data{
-		Package_type: 2,
+		Package_type: PackageTypeFileReq,
 		FilePath:     filePath,
 	}
 

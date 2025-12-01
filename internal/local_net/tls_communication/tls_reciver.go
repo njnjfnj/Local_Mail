@@ -98,16 +98,19 @@ func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, c
 		ch2 <- *messagetype.New_message(data.FullAddress, "", data.FilePath, "", a, startFileDownloadingChan)
 	case PackageTypeFileReq:
 		safePath := filepath.Join("Shared", filepath.Base(data.FilePath))
-
 		file, err := os.Open(safePath)
 		if err != nil {
 			log.Println("file is not found:", safePath)
+			return
 		}
 		defer file.Close()
+
+		fmt.Printf("Начинаю отправку файла: %s\n", safePath)
 
 		_, err = io.Copy(conn, file)
 		if err != nil {
 			log.Println("Ошибка отправки файла:", err)
+			return
 		}
 
 	}
