@@ -28,6 +28,7 @@ type AppGUI struct {
 	chatViewMu               sync.RWMutex
 
 	menuScreen            fyne.CanvasObject
+	aboutScreen           fyne.CanvasObject
 	settingsScreen        fyne.CanvasObject
 	settingsScreenWidgets *SettingsWidgets
 
@@ -56,6 +57,7 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 	a.chatList = make(map[string]string)
 	a.chatListScreen = a.createChatListScreen()
 	a.menuScreen = a.createMenuScreen()
+	a.aboutScreen = a.createAboutScreen()
 	a.settingsScreenWidgets = a.createsettingsWidgets()
 	a.settingsScreen = a.createSettingsScreen()
 	a.inputEntry = widget.NewMultiLineEntry()
@@ -118,4 +120,8 @@ func (a *AppGUI) navigateToMenu() {
 
 func (a *AppGUI) navigateToSettings() {
 	a.window.SetContent(a.settingsScreen)
+}
+
+func (a *AppGUI) navigateToAbout() {
+	a.window.SetContent(a.aboutScreen)
 }

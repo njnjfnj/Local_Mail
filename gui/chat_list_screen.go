@@ -18,9 +18,9 @@ func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
 	menuButton := widget.NewButton("≡", func() {
 		a.navigateToMenu()
 	})
-	searchButton := widget.NewButton("Find user", func() {
-		// Логика поиска
-	})
+	// searchButton := widget.NewButton("Find user", func() {
+	// 	// Логика поиска
+	// })
 
 	refreshButton := widget.NewButton("Refresh users", func() {
 		vbox1.Objects[0].(*widget.Label).SetText("")
@@ -45,21 +45,10 @@ func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
 
 	topAppBar := container.NewBorder(
 		nil, nil, // top, bottom
-		menuButton,   // left
-		searchButton, // right
-		title,        // center
+		menuButton, // left
+		nil,        // right
+		title,      // center
 	)
-
-	// 2. Список чатов (используем widget.List для производительности)
-	// a.chatList = map[string]string{
-	// 	"192.168.0.2": "Vova",
-	// 	"192.168.0.3": "Sasha",
-	// 	"192.168.0.4": "Nastia",
-	// 	"192.168.0.5": "Lesha",
-	// }
-
-	// сделать так, чтоб при обновлении ползователей с сети обновлялся chatList
-	// и потом обновлялся chatList
 
 	a.chatListView = widget.NewList(
 		func() int {
