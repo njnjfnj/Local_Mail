@@ -62,6 +62,18 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 		a.inputEntry.SetText("")
 	})
 
+	a.inputEntry.OnSubmit = func() {
+		msg := messagetype.My_new_text_message(fullAddr, time.Now().Format("02/01/2006 15:04")+": "+a.inputEntry.Text)
+		a.updateChatViewChan <- *msg
+		tls_communication.SendPackage(fullAddr, mail_data{
+			Package_type: 1,
+			Username:     contactName,
+			FullAddress:  local_net.GetOutboundIP() + ":" + a.settingsScreenWidgets.Port.Text,
+			Message:      time.Now().Format("02/01/2006 15:04") + ": " + a.inputEntry.Text,
+		})
+		a.inputEntry.SetText("")
+	}
+
 	attachFileButton := widget.NewButton("send file", func() {
 		dialog.ShowFileOpen(func(reader fyne.URIReadCloser, err error) {
 			if err != nil || reader == nil {

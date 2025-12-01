@@ -20,7 +20,7 @@ type AppGUI struct {
 	chatListScreen fyne.CanvasObject
 	chatListView   *widget.List
 
-	inputEntry               *widget.Entry
+	inputEntry               *SubmitEntry
 	temporaryMessagesStorage map[string][]messagetype.Message_type
 	updateChatViewChan       chan messagetype.Message_type
 	startFileDownloadingChan chan string
@@ -60,7 +60,7 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 	a.aboutScreen = a.createAboutScreen()
 	a.settingsScreenWidgets = a.createsettingsWidgets()
 	a.settingsScreen = a.createSettingsScreen()
-	a.inputEntry = widget.NewMultiLineEntry()
+	a.inputEntry = NewSubmitEntry()
 	a.inputEntry.Wrapping = fyne.TextWrapWord
 	a.temporaryMessagesStorage = make(map[string][]messagetype.Message_type)
 

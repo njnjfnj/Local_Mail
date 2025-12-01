@@ -19,7 +19,7 @@ func (a *AppGUI) createChatListScreen() fyne.CanvasObject {
 		a.navigateToMenu()
 	})
 	// searchButton := widget.NewButton("Find user", func() {
-	// 	// Логика поиска
+	//
 	// })
 
 	refreshButton := widget.NewButton("Refresh users", func() {
