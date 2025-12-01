@@ -21,7 +21,15 @@ type mail_data struct {
 	Username     string
 	FullAddress  string
 	Message      string
+	FilePath     string
 }
+
+const (
+	PackageTypeHandshake    = 0
+	PackageTypeMessage      = 1
+	PackageTypeSendFileInfo = 2
+	PackageTypeFileReq      = 3
+)
 
 func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.List, fyne.CanvasObject) {
 	backButton := widget.NewButton("Back", func() {
@@ -77,6 +85,12 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 				log.Println("error io.Copy: ", err.Error())
 			}
 			a.updateChatViewChan <- *messagetype.New_message(fullAddr, "ME: ", destPath, "", a.window, a.startFileDownloadingChan)
+			tls_communication.SendPackage(fullAddr, mail_data{
+				Package_type: PackageTypeSendFileInfo,
+				Username:     a.settingsScreenWidgets.Username.Text,
+				FullAddress:  local_net.GetOutboundIP() + ":" + a.settingsScreenWidgets.Port.Text,
+				FilePath:     destPath,
+			})
 
 		}, a.window)
 	})

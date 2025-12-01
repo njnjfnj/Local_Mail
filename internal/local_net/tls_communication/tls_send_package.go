@@ -70,6 +70,6 @@ func DownloadFile(peerAddr string, filePath string, savePath string) error {
 		return fmt.Errorf("download error: %w", err)
 	}
 
-	fmt.Printf("Скачано %d байт\n", n)
+	fmt.Printf("Downloaded %d bytes\n", n)
 	return nil
 }

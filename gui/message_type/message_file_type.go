@@ -32,7 +32,7 @@ func New_file(new_file_path, new_HolderIP string, a fyne.Window, startFileDownlo
 			}
 
 			savePath := filepath.Join(uri.Path(), filepath.Base(file.File_path))
-			fmt.Println("alolaolaoaloa: ", file.File_path)
+			fmt.Println(file.HolderIP, "~", file.File_path, "~", savePath)
 
 			startFileDownloadingChan <- fmt.Sprint(file.HolderIP, "~", file.File_path, "~", savePath)
 		}, a)
