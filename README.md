@@ -39,5 +39,24 @@ Messenger provides p2p mTLS text/file messages to specific user in network, that
   </tr>
 </table>
 
+## Main questions
+<hr>
+<h3>Messanger is not working after changing ports.</h3><br>
+After changing port you have to allow your firewall this port/protocol.<br>
 
+#### Ubuntu
+```bash
+sudo ufw allow 1337/udp && sudo ufw allow 1338/tcp
+```
+#### Windows
+```powershell
+New-NetFirewallRule -DisplayName "App UDP 1337" -Direction Inbound -LocalPort 1337 -Protocol UDP -Action Allow
+New-NetFirewallRule -DisplayName "App TLS 1338" -Direction Inbound -LocalPort 1338 -Protocol TCP -Action Allow
+```
 
+#### Android (ADB Shell or Terminal)
+```bash
+su -c 'iptables -A INPUT -p udp --dport 1337 -j ACCEPT'
+su -c 'iptables -A INPUT -p tcp --dport 1338 -j ACCEPT'
+```
+<hr>
