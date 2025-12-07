@@ -38,6 +38,7 @@ Messenger provides p2p mTLS text/file messages to specific user in network, that
     </td>
   </tr>
 </table>
+<br>
 
 ## Main questions
 <hr>
