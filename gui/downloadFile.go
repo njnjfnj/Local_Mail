@@ -15,6 +15,6 @@ func (a *AppGUI) downloadFile(ch chan string) {
 		value := <-ch
 		value_list := strings.Split(value, "~")
 
-		go tls_communication.DownloadFile(value_list[0], value_list[1], value_list[2])
+		go tls_communication.DownloadFile(value_list[0], value_list[1], value_list[2], a.app)
 	}
 }

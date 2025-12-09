@@ -23,10 +23,10 @@ const MaxHeaderBytes = 1024 * 1024
 
 var connectionSemaphore = make(chan struct{}, 100)
 
-func tcpServer(host string, port *widget.Entry, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window) error {
+func tcpServer(host string, port *widget.Entry, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window, app fyne.App) error {
 	addr := host + ":" + port.Text
 
-	cert, err := GetOrGenerateCertificate("cert.pem", "key.pem")
+	cert, err := GetOrGenerateCertificate(app)
 	if err != nil {
 		return fmt.Errorf("cettificate error %s: %w", addr, err)
 	}
@@ -62,8 +62,8 @@ func tcpServer(host string, port *widget.Entry, ch, startFileDownloadingChan cha
 	}
 }
 
-func StartTCPServer(host string, port *widget.Entry, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window) {
-	go tcpServer(host, port, ch, startFileDownloadingChan, ch2, a)
+func StartTCPServer(host string, port *widget.Entry, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window, app fyne.App) {
+	go tcpServer(host, port, ch, startFileDownloadingChan, ch2, a, app)
 }
 
 func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window) {

@@ -3,7 +3,6 @@ package gui
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -14,7 +13,10 @@ import (
 	local_net "github.com/njnjfnj/Local_Mail/lib/local_net"
 )
 
+const PREF_KEY = "app_configuration_json"
+
 type AppGUI struct {
+	app            fyne.App
 	window         fyne.Window
 	chatListScreen fyne.CanvasObject
 	chatListView   *widget.List
@@ -36,21 +38,10 @@ type AppGUI struct {
 	updateChatListChan chan string
 }
 
-func NewAppGUI(w fyne.Window) *AppGUI {
-	settings, err := os.ReadFile("settings.json")
-	if err != nil {
-		fmt.Println("error loading savings:", err)
-	}
-
-	var settingsLoad settingsSaving
-
-	err = json.Unmarshal(settings, &settingsLoad)
-	if err != nil {
-		fmt.Println("error decoding JSON:", err)
-	}
-
+func NewAppGUI(w fyne.Window, appapp fyne.App) *AppGUI {
 	a := &AppGUI{
 		window: w,
+		app:    appapp,
 	}
 	a.chatList = make(map[string]string)
 	a.chatListScreen = a.createChatListScreen()
@@ -66,6 +57,14 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 	a.updateChatViewChan = make(chan messagetype.Message_type)
 	a.startFileDownloadingChan = make(chan string)
 
+	settings := a.app.Preferences().StringWithFallback(PREF_KEY, "")
+
+	var settingsLoad settingsSaving
+
+	err := json.Unmarshal([]byte(settings), &settingsLoad)
+	if err != nil {
+		fmt.Println("error decoding JSON:", err)
+	}
 	if string(settings) != "" {
 		a.settingsScreenWidgets.Username.SetText(settingsLoad.Username)
 		a.settingsScreenWidgets.Port.SetText(settingsLoad.Port)
@@ -77,6 +76,7 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 		a.settingsScreenWidgets.Port,
 		a.settingsScreenWidgets.UdpPort,
 		a.updateChatListChan,
+		a.app,
 	)
 	tls_communication.StartTCPServer(
 		local_net.GetOutboundIP(),
@@ -85,6 +85,7 @@ func NewAppGUI(w fyne.Window) *AppGUI {
 		a.startFileDownloadingChan,
 		a.updateChatViewChan,
 		a.window,
+		a.app,
 	)
 
 	a.startUpdateChatList(a.updateChatListChan, &a.chatListMu)

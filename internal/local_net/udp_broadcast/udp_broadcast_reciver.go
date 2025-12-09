@@ -6,6 +6,7 @@ import (
 	"net"
 	"time"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 
 	t "github.com/njnjfnj/Local_Mail/internal/local_net/tls_communication"
@@ -14,7 +15,7 @@ import (
 
 // const listenPort = "1337"
 
-func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *widget.Entry, ch chan string) {
+func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *widget.Entry, ch chan string, app fyne.App) {
 	for {
 		addr, err := net.ResolveUDPAddr("udp4", ":"+UdpPort.Text)
 		if err != nil {
@@ -55,12 +56,12 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *
 					FullAddress:  fmt.Sprintf("%s:%s", local_net.GetOutboundIP(), Port.Text),
 				}
 
-				go t.SendPackage(data.FullAddress, message)
+				go t.SendPackage(data.FullAddress, message, app)
 			}
 		}
 	}
 }
 
-func Start_udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *widget.Entry, ch chan string) {
-	go udp_broadcast_reciver(Username, Port, UdpPort, ch)
+func Start_udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *widget.Entry, ch chan string, app fyne.App) {
+	go udp_broadcast_reciver(Username, Port, UdpPort, ch, app)
 }

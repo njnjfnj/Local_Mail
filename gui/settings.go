@@ -2,8 +2,6 @@ package gui
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -51,9 +49,10 @@ func (a *AppGUI) createSettingsScreen() fyne.CanvasObject {
 			UdpPort:  a.settingsScreenWidgets.UdpPort.Text,
 		})
 
-		if err := os.WriteFile("settings.json", saving, 0644); err != nil {
-			fmt.Println("error settings saving:", err)
-		}
+		a.app.Preferences().SetString(PREF_KEY, string(saving))
+		// if err := os.WriteFile(filepath.Join(localfs.GetAppStoragePath(), "settings.json"), saving, 0644); err != nil {
+		// 	fmt.Println("error settings saving:", err)
+		// }
 	})
 
 	title := widget.NewLabel("Settings")

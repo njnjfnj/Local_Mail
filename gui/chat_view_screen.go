@@ -58,7 +58,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			Username:     contactName,
 			FullAddress:  local_net.GetOutboundIP() + ":" + a.settingsScreenWidgets.Port.Text,
 			Message:      time.Now().Format("02/01/2006 15:04") + ": " + a.inputEntry.Text,
-		})
+		}, a.app)
 		a.inputEntry.SetText("")
 	})
 
@@ -70,7 +70,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 			Username:     contactName,
 			FullAddress:  local_net.GetOutboundIP() + ":" + a.settingsScreenWidgets.Port.Text,
 			Message:      time.Now().Format("02/01/2006 15:04") + ": " + a.inputEntry.Text,
-		})
+		}, a.app)
 		a.inputEntry.SetText("")
 	}
 
@@ -103,7 +103,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 				Username:     a.settingsScreenWidgets.Username.Text,
 				FullAddress:  local_net.GetOutboundIP() + ":" + a.settingsScreenWidgets.Port.Text,
 				FilePath:     destPath,
-			})
+			}, a.app)
 
 		}, a.window)
 	})

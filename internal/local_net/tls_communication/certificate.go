@@ -8,62 +8,78 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"math/big"
-	"os"
+	"net"
 	"time"
+
+	"fyne.io/fyne/v2"
 )
 
-func GetOrGenerateCertificate(certFile, keyFile string) (tls.Certificate, error) {
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-	if err == nil {
-		return cert, nil
+const (
+	PREF_CERT = "tls_cert_pem_v2"
+	PREF_KEY  = "tls_key_pem_v2"
+)
+
+func GetOrGenerateCertificate(app fyne.App) (tls.Certificate, error) {
+	certStr := app.Preferences().StringWithFallback(PREF_CERT, "")
+	keyStr := app.Preferences().StringWithFallback(PREF_KEY, "")
+
+	if certStr != "" && keyStr != "" {
+		cert, err := tls.X509KeyPair([]byte(certStr), []byte(keyStr))
+		if err == nil {
+			return cert, nil
+		}
 	}
 
-	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	certPEM, keyPEM, err := generatePEMKeys()
 	if err != nil {
 		return tls.Certificate{}, err
 	}
 
-	notBefore := time.Now()
-	notAfter := notBefore.Add(365 * 24 * time.Hour)
+	app.Preferences().SetString(PREF_CERT, string(certPEM))
+	app.Preferences().SetString(PREF_KEY, string(keyPEM))
+
+	return tls.X509KeyPair(certPEM, keyPEM)
+}
+
+func generatePEMKeys() ([]byte, []byte, error) {
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
-	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
+	serialNumber, _ := rand.Int(rand.Reader, serialNumberLimit)
 
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{"My P2P Messenger"},
+			Organization: []string{"LocalMail P2P"},
 		},
-		NotBefore: notBefore,
-		NotAfter:  notAfter,
+		NotBefore: time.Now(),
+		NotAfter:  time.Now().Add(365 * 24 * 10 * time.Hour), // 10 лет
 
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 	}
 
-	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privKey.PublicKey, privKey)
-	if err != nil {
-		return tls.Certificate{}, err
+	template.IPAddresses = append(template.IPAddresses, net.ParseIP("127.0.0.1"))
+	addrs, _ := net.InterfaceAddrs()
+	for _, a := range addrs {
+		if ipnet, ok := a.(*net.IPNet); ok {
+			if ip := ipnet.IP.To4(); ip != nil {
+				template.IPAddresses = append(template.IPAddresses, ip)
+			}
+		}
 	}
 
-	certOut, err := os.Create(certFile)
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
 	if err != nil {
-		return tls.Certificate{}, err
+		return nil, nil, err
 	}
-	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
-	certOut.Close()
 
-	keyOut, err := os.Create(keyFile)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-	privBytes := x509.MarshalPKCS1PrivateKey(privKey)
-	pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: privBytes})
-	keyOut.Close()
+	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
+	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
 
-	return tls.LoadX509KeyPair(certFile, keyFile)
+	return certPEM, keyPEM, nil
 }

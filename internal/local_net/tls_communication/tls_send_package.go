@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"fyne.io/fyne/v2"
 )
 
-func SendPackage(toAddr string, data interface{}) error {
-	cert, err := GetOrGenerateCertificate("cert.pem", "key.pem")
+func SendPackage(toAddr string, data interface{}, app fyne.App) error {
+	cert, err := GetOrGenerateCertificate(app)
 	if err != nil {
 		return fmt.Errorf("certificate error: %w", err)
 	}
@@ -33,8 +35,8 @@ func SendPackage(toAddr string, data interface{}) error {
 	return nil
 }
 
-func DownloadFile(peerAddr string, filePath string, savePath string) error {
-	cert, err := GetOrGenerateCertificate("cert.pem", "key.pem")
+func DownloadFile(peerAddr string, filePath string, savePath string, app fyne.App) error {
+	cert, err := GetOrGenerateCertificate(app)
 	if err != nil {
 		return err
 	}
