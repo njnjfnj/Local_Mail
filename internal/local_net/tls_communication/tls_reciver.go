@@ -11,12 +11,17 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 
 	messagetype "github.com/njnjfnj/Local_Mail/gui/message_type"
 )
+
+const MaxHeaderBytes = 1024 * 1024
+
+var connectionSemaphore = make(chan struct{}, 100)
 
 func tcpServer(host string, port *widget.Entry, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window) error {
 	addr := host + ":" + port.Text
@@ -44,7 +49,16 @@ func tcpServer(host string, port *widget.Entry, ch, startFileDownloadingChan cha
 			continue
 		}
 
-		go handleConnection(conn, ch, startFileDownloadingChan, ch2, a)
+		select {
+		case connectionSemaphore <- struct{}{}:
+			go func() {
+				defer func() { <-connectionSemaphore }()
+				handleConnection(conn, ch, startFileDownloadingChan, ch2, a)
+			}()
+		default:
+			log.Println("Server busy, rejecting connection")
+			conn.Close()
+		}
 	}
 }
 
@@ -54,6 +68,8 @@ func StartTCPServer(host string, port *widget.Entry, ch, startFileDownloadingCha
 
 func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, ch2 chan messagetype.Message_type, a fyne.Window) {
 	defer conn.Close()
+
+	conn.SetDeadline(time.Now().Add(10 * time.Second))
 
 	tlsConn, ok := conn.(*tls.Conn)
 	if !ok {
@@ -80,8 +96,10 @@ func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, c
 
 	fmt.Printf("connected user ID: %s\n", fingerprint)
 
+	limitReader := io.LimitReader(conn, MaxHeaderBytes)
+
 	var data mail_data
-	if err := json.NewDecoder(conn).Decode(&data); err != nil {
+	if err := json.NewDecoder(limitReader).Decode(&data); err != nil {
 		log.Println("can not decode json")
 		return
 	}
@@ -94,6 +112,8 @@ func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, c
 	case PackageTypeSendFileInfo:
 		ch2 <- *messagetype.New_message(data.FullAddress, "", data.FilePath, "", a, startFileDownloadingChan)
 	case PackageTypeFileReq:
+		conn.SetReadDeadline(time.Now().Add(10 * time.Second))
+		conn.SetWriteDeadline(time.Now().Add(20 * time.Minute)) // TODO: make this changeable in settings
 		safePath := filepath.Join("Shared", filepath.Base(data.FilePath))
 		file, err := os.Open(safePath)
 		if err != nil {
