@@ -28,6 +28,8 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *
 			continue
 		}
 
+		defer conn.Close()
+
 		buffer := make([]byte, 1024)
 
 		for {
@@ -53,7 +55,7 @@ func udp_broadcast_reciver(Username *widget.Entry, Port *widget.Entry, UdpPort *
 					FullAddress:  fmt.Sprintf("%s:%s", local_net.GetOutboundIP(), Port.Text),
 				}
 
-				t.SendPackage(data.FullAddress, message)
+				go t.SendPackage(data.FullAddress, message)
 			}
 		}
 	}
