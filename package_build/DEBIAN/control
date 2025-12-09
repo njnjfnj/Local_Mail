@@ -1,0 +1,12 @@
+Package: local-mail
+Version: 1.0.0
+Architecture: amd64
+Maintainer: Ilhin Serhii <ilin06serhii@gmail.com>
+Installed-Size: 32000
+Depends: libc6, libgl1-mesa-glx, libxcursor1, libxi6, libxinerama1, libxrandr2, libxxf86vm1
+Section: utils
+Priority: optional
+Homepage: https://github.com/njnjfnj/Local_Mail
+Description: P2P LAN Messenger
+ A secure peer-to-peer messenger for local networks.
+ Allows chatting and file transfer without internet access.

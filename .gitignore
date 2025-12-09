@@ -3,6 +3,7 @@ key.pem
 settings.json
 launch.json
 Local_Mail.apk
+.deb
 Shared/
 fyne-cross/
 .vscode/

@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "configure" ]; then
+    if command -v ufw >/dev/null; then
+        echo "configuring Firewall..."
+        ufw allow 1337/udp
+        ufw allow 1338/tcp
+        ufw reload || true 
+        echo "1337/udp and 1338/tcp have been opened."
+    else
+        echo "UFW has been not found."
+    fi
+fi
+
+exit 0

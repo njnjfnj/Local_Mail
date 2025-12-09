@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Local Mail
+Comment=LAN Messenger
+Exec=/usr/bin/local-mail
+Icon=local-mail
+Terminal=false
+Categories=Network;Utility;
+Keywords=Chat;LAN;Messenger;
