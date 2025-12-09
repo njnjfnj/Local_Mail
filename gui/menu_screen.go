@@ -13,6 +13,10 @@ func (a *AppGUI) createMenuScreen() fyne.CanvasObject {
 		a.navigateBackToList()
 	})
 
+	a.window.SetOnClosed(func() {
+		a.navigateBackToList()
+	})
+
 	settingsButton := widget.NewButton("Settings", func() {
 		a.navigateToSettings()
 	})
@@ -39,6 +43,9 @@ func (a *AppGUI) createMenuScreen() fyne.CanvasObject {
 
 func (a *AppGUI) createAboutScreen() fyne.CanvasObject {
 	backButton := widget.NewButton("Back", func() {
+		a.navigateToMenu()
+	})
+	a.window.SetOnClosed(func() {
 		a.navigateToMenu()
 	})
 

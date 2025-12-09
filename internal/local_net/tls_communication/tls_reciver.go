@@ -115,9 +115,21 @@ func handleConnection(conn net.Conn, ch, startFileDownloadingChan chan string, c
 		conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 		conn.SetWriteDeadline(time.Now().Add(20 * time.Minute)) // TODO: make this changeable in settings
 		safePath := filepath.Join("Shared", filepath.Base(data.FilePath))
+
 		file, err := os.Open(safePath)
 		if err != nil {
 			log.Println("file is not found:", safePath)
+			file2, err := os.Open(data.FilePath)
+			if err != nil {
+				log.Println("file is not found:", safePath)
+				return
+			}
+			defer file2.Close()
+			_, err = io.Copy(conn, file)
+			if err != nil {
+				log.Println("file sending error:", err)
+				return
+			}
 			return
 		}
 		defer file.Close()

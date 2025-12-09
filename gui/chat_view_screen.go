@@ -33,10 +33,14 @@ const (
 
 func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.List, fyne.CanvasObject) {
 	backButton := widget.NewButton("Back", func() {
-		a.navigateBackToList() // Навигация назад
+		a.navigateBackToList()
 	})
-	// infoButton := widget.NewButton("Info", func() {
-	// })
+	if drv, ok := a.app.Driver().(interface{ SetOnBack(func()) }); ok {
+		drv.SetOnBack(func() {
+			a.navigateBackToList()
+		})
+	}
+
 	title := widget.NewLabel(contactName)
 	title.TextStyle.Bold = true
 	title.Alignment = fyne.TextAlignCenter
@@ -44,7 +48,7 @@ func (a *AppGUI) createChatViewScreen(contactName, fullAddr string) (*widget.Lis
 	topAppBar := container.NewBorder(
 		nil, nil, // top, bottom
 		backButton, // left
-		nil,        //infoButton, // right
+		nil,        // right
 		title,      // center
 	)
 

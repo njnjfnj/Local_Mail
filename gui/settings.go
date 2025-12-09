@@ -42,6 +42,10 @@ func (a *AppGUI) createSettingsScreen() fyne.CanvasObject {
 		a.navigateToMenu()
 	})
 
+	a.window.SetOnClosed(func() {
+		a.navigateToMenu()
+	})
+
 	saveButton := widget.NewButton("Save", func() {
 		saving, _ := json.Marshal(settingsSaving{
 			Username: a.settingsScreenWidgets.Username.Text,

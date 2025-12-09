@@ -8,12 +8,13 @@ import (
 )
 
 func main() {
+
 	myApp := app.NewWithID("com.localmail.app")
 	a := app.New()
 
 	w := a.NewWindow("Local Mail")
 
-	w.Resize(fyne.NewSize(450, 740))
+	w.Resize(fyne.NewSize(450, 600))
 
 	appGUI := gui.NewAppGUI(w, myApp)
 
@@ -21,3 +22,5 @@ func main() {
 
 	w.ShowAndRun()
 }
+
+// TODO: make error alerts in app
