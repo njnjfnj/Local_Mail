@@ -49,12 +49,6 @@ After changing port you have to allow your firewall this port/protocol.<br>
 ```bash
 sudo ufw allow 1337/udp && sudo ufw allow 1338/tcp
 ```
-#### .rpm 
-```bash
-sudo firewall-cmd --permanent --add-port=1338/tcp
-sudo firewall-cmd --permanent --add-port=1337/udp
-sudo firewall-cmd --reload
-```
 
 #### .exe
 ```powershell
